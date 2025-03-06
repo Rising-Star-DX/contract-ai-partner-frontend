@@ -1,21 +1,15 @@
-import { createTheme} from '@mui/material/styles';
+import {createTheme} from "@mui/material/styles";
 
 const userTheme = createTheme({
-    palette: {
-        primary:{
-            main: "#5686E1"
-        }
-    },
-    typography: {
-        fontFamily: [
-            'NanumSquareNeo',
-            '-apple-system',
-            'BlinkMacSystemFont',
-            '"Segoe UI"',
-            'Roboto',
-            '"Helvetica Neue"',
-            'Arial',
-            'sans-serif'
-        ].join(",")
-    }
-})
+	palette: {
+		primary: {
+			main: "#5686E1",
+		},
+	},
+	typography: {
+		fontFamily: ["NanumSquareNeo", "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "sans-serif"].join(","),
+	},
+	spacing: 4,
+});
+
+export default userTheme;
