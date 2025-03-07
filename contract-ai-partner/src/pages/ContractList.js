@@ -39,10 +39,8 @@ function getDocIcon(iconType) {
 }
 
 function ContractList() {
-	const navigate = useNavigate();
-
 	// 더미 데이터
-	const dummyData = [
+	const DUMMY_DATA = [
 		{
 			id: 1,
 			iconType: "PDF",
@@ -68,6 +66,8 @@ function ContractList() {
 	];
 
 	// 문서 보기 클릭
+	const navigate = useNavigate();
+
 	const handleViewDocument = row => {
 		navigate("/contract-review", {
 			state: {
@@ -219,7 +219,7 @@ function ContractList() {
 				}}
 			>
 				<DataGrid
-					rows={dummyData}
+					rows={DUMMY_DATA}
 					columns={columns}
 					pageSize={5}
 					rowsPerPageOptions={[5, 10, 20]}
