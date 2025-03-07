@@ -1,5 +1,6 @@
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 import {Box} from "@mui/material";
 
 import {React, useState} from "react";
@@ -43,6 +44,13 @@ function Sidebar() {
 					label="AI 분석 보고서"
 					active={selectedMenu === "ai"}
 					onClick={() => handleMenuClick("ai")}
+				/>
+
+				<NavigationMenuItem
+					icon={<BalanceOutlinedIcon />}
+					label="기준 문서"
+					active={selectedMenu === "criteria"}
+					onClick={() => handleMenuClick("criteria")}
 				/>
 			</Box>
 
