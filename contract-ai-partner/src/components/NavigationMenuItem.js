@@ -27,8 +27,9 @@ function NavigationMenuItem({icon, label, onClick, active}) {
 				px: 8,
 				cursor: "pointer",
 				"&:hover": {
-					backgroundColor: "#ECECEC",
+					backgroundColor: "#E0E8F6",
 				},
+				bgcolor: active ? "#E0E8F6" : "#FFFFFF",
 			}}
 		>
 			<Box sx={{mr: 5}}>{iconElement}</Box>
