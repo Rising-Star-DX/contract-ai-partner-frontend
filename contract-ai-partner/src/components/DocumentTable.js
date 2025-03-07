@@ -52,6 +52,7 @@ function DocumentTable({data}) {
 							<Checkbox />
 						</TableCell>
 						<TableCell>문서 이름</TableCell>
+						<TableCell>카테고리</TableCell>
 						<TableCell>업로드 일자</TableCell>
 						<TableCell>업로드 상태</TableCell>
 						<TableCell></TableCell>
@@ -72,6 +73,9 @@ function DocumentTable({data}) {
 									<Box>{item.name}</Box>
 								</Stack>
 							</TableCell>
+
+							{/* 카테고리 */}
+							<TableCell>{item.category}</TableCell>
 
 							{/* 업로드 일자 */}
 							<TableCell>{item.uploadDate}</TableCell>
