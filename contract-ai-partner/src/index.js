@@ -8,25 +8,26 @@ import App from "./App";
 import userTheme from "./styles/userTheme";
 import adminTheme from "./styles/adminTheme";
 
+import RoleProvider from "./contexts/RoleProvider";
+import RoleContext from "./contexts/RoleContext";
+
 function Root() {
-	const role = "admin";
-
-	// 로그인 이후 적용할 코드
-	// const [role, setRole] = useState("admin");
-
-	// useEffect(() => {
-	// 	const storedRole = localStorage.getItem("role");
-	// 	setRole(storedRole);
-	// }, []);
-
-	// role에 따라 관리자 테마 / 사용자 테마 적용
-	const theme = role === "admin" ? adminTheme : userTheme;
-
 	return (
-		<ThemeProvider theme={theme}>
-			<App />
-		</ThemeProvider>
+		<RoleProvider>
+			<ThemeWrapper>
+				<App />
+			</ThemeWrapper>
+		</RoleProvider>
 	);
+}
+
+function ThemeWrapper({children}) {
+	const role = React.useContext(RoleContext);
+
+	// role이 아직 null이면 기본 userTheme
+	const currentTheme = role === "admin" ? adminTheme : userTheme;
+
+	return <ThemeProvider theme={currentTheme}>{children}</ThemeProvider>;
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

@@ -22,22 +22,22 @@ function ReviewTab() {
 	return (
 		<Grid2
 			container
-			alignItems="center"
 			sx={{
+				width: "100%",
 				height: 48,
 				backgroundColor: "#FFFFFF",
 			}}
 		>
-			{/* 왼쪽 영역: "원본" / "수동 문구" */}
+			{/* (1) 왼쪽 영역: "원본" / "수동 문구" */}
 			<Grid2
-				item
-				xs={5}
+				size={5}
 				container
 				justifyContent="center"
 				alignItems="center"
 				onClick={handleOpenLeftMenu}
 				sx={{
 					cursor: "pointer",
+					textAlign: "center",
 				}}
 			>
 				<Typography
@@ -52,13 +52,13 @@ function ReviewTab() {
 				<ArrowDropDownIcon sx={{ml: 1}} />
 			</Grid2>
 
-			{/* 가운데 화살표 아이콘 */}
-			<Grid2 item xs={2} container justifyContent="center" alignItems="center">
+			{/* (2) 가운데 화살표 아이콘 */}
+			<Grid2 size={2} container justifyContent="center" alignItems="center" sx={{textAlign: "center"}}>
 				<ArrowForwardIcon sx={{color: "#000"}} />
 			</Grid2>
 
-			{/* 오른쪽 영역: "검토 결과" */}
-			<Grid2 item xs={5} container justifyContent="center" alignItems="center">
+			{/* (3) 오른쪽 영역: "검토 결과" */}
+			<Grid2 size={5} container justifyContent="center" alignItems="center" sx={{textAlign: "center"}}>
 				<Typography
 					variant="h7"
 					sx={{
@@ -70,7 +70,7 @@ function ReviewTab() {
 				</Typography>
 			</Grid2>
 
-			{/* 드롭다운 메뉴 */}
+			{/* 드롭다운 메뉴 (왼쪽) */}
 			<Menu anchorEl={anchorElLeft} open={Boolean(anchorElLeft)} onClose={handleCloseLeftMenu}>
 				<MenuItem selected={selectedLeft === "원본"} onClick={() => handleSelectLeftMenu("원본")}>
 					원본

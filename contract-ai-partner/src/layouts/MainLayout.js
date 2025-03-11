@@ -11,12 +11,12 @@ function MainLayout({children}) {
 			<Header />
 
 			{/* 하단 사이드바 + 메인 컨텐츠 영역 */}
-			<Box sx={{display: "flex", flexGrow: 1}}>
+			<Box sx={{display: "flex", flexGrow: 1, overflow: "hidden"}}>
 				{/* 왼쪽 사이드바 */}
 				<Sidebar />
 
 				{/* 오른쪽 메인 컨텐츠 */}
-				<Box sx={{flexGrow: 1, overflow: "auto", bgcolor: "#F8F9F9", p: 8}}>{children}</Box>
+				<Box sx={{flexGrow: 1, overflow: "hidden", bgcolor: "#F8F9F9", p: 8}}>{children}</Box>
 			</Box>
 		</Box>
 	);
