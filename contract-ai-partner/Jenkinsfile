@@ -14,18 +14,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // 현재 Jenkinsfile이 /contract-ai-partner 폴더에 있으므로,
-                // Jenkins에서 Pipeline Script from SCM으로 설정 시, "Script Path"를 
-                // "contract-ai-partner/Jenkinsfile"로 지정합니다.
-                // 아래처럼 git 체크아웃 단계를 명시해주면 명시적이고, branch 지정도 가능.
-                git branch: 'main',
-                    url: 'https://github.com/your-org/your-repo.git',
-                    credentialsId: 'git-cred-frontend'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 // Jenkins 작업 디렉터리는 이미 /contract-ai-partner 가 됩니다(스크립트 경로 기준).
