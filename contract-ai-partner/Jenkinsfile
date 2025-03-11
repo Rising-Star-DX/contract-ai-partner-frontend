@@ -35,7 +35,7 @@ pipeline {
             steps {
                 // React 프로덕션 빌드
                 dir('contract-ai-partner') {
-                    sh 'npm run build'
+                    sh 'CI=false npm run build'
                 }
             }
         }
