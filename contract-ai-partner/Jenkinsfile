@@ -44,7 +44,11 @@ pipeline {
             steps {
                 // AWS CLI로 S3 동기화
                 // AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY 환경변수를 참조.
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "aws-cred-frontend"]]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-cred-frontend', // 이미 존재하는 'Username & password' 타입 Credential
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
                     dir('contract-ai-partner') {
                         sh '''
                         aws s3 sync build/ s3://rising-star-react \
@@ -59,7 +63,11 @@ pipeline {
         stage('Invalidate CloudFront') {
             steps {
                 // CloudFront 캐시 무효화
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "aws-cred-frontend"]]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-cred-frontend', // 이미 존재하는 'Username & password' 타입 Credential
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
                     dir('contract-ai-partner') {
                         sh '''
                         aws cloudfront create-invalidation \
