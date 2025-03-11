@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    
+    // node 사용 설정
+    tools {
+        nodejs "NodeJs" // Global Tool Configuration에서 지정한 이름
+    }
 
     // (선택) 환경 변수 설정
     environment {
