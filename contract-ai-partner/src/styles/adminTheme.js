@@ -1,6 +1,6 @@
 import {createTheme} from "@mui/material/styles";
 
-const userTheme = createTheme({
+const adminTheme = createTheme({
 	palette: {
 		primary: {
 			main: "#5686E1",
@@ -14,11 +14,11 @@ const userTheme = createTheme({
 		MuiAppBar: {
 			styleOverrides: {
 				root: {
-					backgroundColor: "#FFFFFF",
+					backgroundColor: "#5686E1",
 				},
 			},
 		},
 	},
 });
 
-export default userTheme;
+export default adminTheme;

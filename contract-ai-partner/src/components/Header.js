@@ -5,11 +5,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 
 function Header() {
 	return (
-		<AppBar
-			position="static"
-			sx={{bgcolor: "#ffffff", color: "#000", zIndex: theme => theme.zIndex.drawer + 1}}
-		>
-			<Toolbar sx={{justifyContent: "space-between"}} variant="dense">
+		<AppBar position="static" sx={{color: "#000", zIndex: theme => theme.zIndex.drawer + 1}}>
+			<Toolbar sx={{justifyContent: "space-between"}}>
 				{/* 왼쪽 영역: 로고 또는 메뉴 버튼 */}
 				<Box sx={{display: "flex", alignItems: "center"}}>
 					<IconButton edge="start" color="inherit" sx={{mr: 1}}>
