@@ -36,7 +36,7 @@ function ContractList() {
 
 	// 문서 보기 핸들러
 	const handleViewDocument = row => {
-		navigate("/contract-review", {
+		navigate(`/agreement/${row.id}`, {
 			state: {
 				category: row.category,
 				docName: row.name,

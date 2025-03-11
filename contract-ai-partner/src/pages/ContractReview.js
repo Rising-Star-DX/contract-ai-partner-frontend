@@ -1,6 +1,6 @@
 // src/pages/ContractReview.jsx
 import React from "react";
-import {useLocation} from "react-router-dom";
+import {useLocation, useParams} from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 
 // 하위 컴포넌트
@@ -13,8 +13,13 @@ function ContractReview() {
 	const location = useLocation();
 	const {category, docName, docType} = location.state || {};
 
+	const {id} = useParams();
+
 	return (
 		<MainLayout>
+			{/* id 테스트용 */}
+			<span>{id}</span>
+
 			{/* 헤더 (문서 제목, 카테고리 > 문서명.타입) */}
 			<ReviewHeader category={category} docName={docName} docType={docType} />
 

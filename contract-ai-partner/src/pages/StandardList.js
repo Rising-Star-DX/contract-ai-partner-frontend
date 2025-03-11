@@ -38,7 +38,7 @@ function StandardList() {
 
 	// 문서 보기 클릭
 	const handleViewDoc = row => {
-		navigate("/standards-review", {
+		navigate(`/standards/${row.id}`, {
 			state: {
 				docName: row.name,
 				category: row.category,
