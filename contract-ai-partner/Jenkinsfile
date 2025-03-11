@@ -25,21 +25,27 @@ pipeline {
             steps {
                 // Jenkins 작업 디렉터리는 이미 /contract-ai-partner 가 됩니다(스크립트 경로 기준).
                 // npm 패키지 설치
-                sh 'npm install'
+                dir('contract-ai-partner') {
+                    sh 'npm install'
+                }
             }
         }
 
         stage('Build') {
             steps {
                 // React 프로덕션 빌드
-                sh 'npm run build'
+                dir('contract-ai-partner') {
+                    sh 'npm run build'
+                }
             }
         }
 
         stage('Test') {
             steps {
                 // 유닛 테스트, 혹은 ESLint, Jest 등 빌드 안정성 검증
-                sh 'npm test'
+                dir('contract-ai-partner') {
+                    sh 'npm test'
+                }
             }
         }
 
@@ -47,22 +53,26 @@ pipeline {
             steps {
                 // AWS CLI로 S3 동기화
                 // AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY 환경변수를 참조.
-                sh '''
-                aws s3 sync build/ s3://rising-star-react \
-                    --delete \
-                    --region ap-northeast-2
-                '''
+                dir('contract-ai-partner') {
+                    sh '''
+                    aws s3 sync build/ s3://rising-star-react \
+                        --delete \
+                        --region ap-northeast-2
+                    '''
+                }
             }
         }
 
         stage('Invalidate CloudFront') {
             steps {
                 // CloudFront 캐시 무효화
-                sh '''
-                aws cloudfront create-invalidation \
-                    --distribution-id E1F9N524PHSA3M \
-                    --paths "/*"
-                '''
+                dir('contract-ai-partner') {
+                    sh '''
+                    aws cloudfront create-invalidation \
+                        --distribution-id E1F9N524PHSA3M \
+                        --paths "/*"
+                    '''
+                }
             }
         }
     }
