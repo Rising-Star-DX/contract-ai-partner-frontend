@@ -31,7 +31,16 @@
 			"react-app",
 			"react-app/jest",
 			"naver"
-		]
+		],
+		"rules": {
+			"linebreak-style": [
+				"error",
+				"windows"
+			]
+		}
+	},
+	"prettier": {
+		"endOfLine": "crlf"
 	},
 	"browserslist": {
 		"production": [

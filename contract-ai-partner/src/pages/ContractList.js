@@ -1,11 +1,12 @@
 // src/pages/ContractList.js
-import React, {useContext} from "react";
+import React, {useContext, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {randomCreatedDate} from "@mui/x-data-grid-generator";
 
 import RoleContext from "../contexts/RoleContext";
 
 import DocumentListPage from "../components/DocumentListPage";
+import FileUploadModal from "../components/FileUploadModal";
 
 import DOC_COLUMNS from "../constants/docColumns";
 
@@ -45,9 +46,17 @@ function ContractList() {
 		});
 	};
 
+	// 모달 창 상태
+	const [modalOpen, setModalOpen] = useState(false);
+
 	// 새 문서 추가 버튼
 	const handleNewDocClick = () => {
-		alert("새 문서 등록 (Contract)");
+		setModalOpen(true);
+	};
+
+	const handleUpload = file => {
+		console.log("업로드된 파일:", file);
+		setModalOpen(false);
 	};
 
 	// 삭제 핸들러
@@ -56,16 +65,21 @@ function ContractList() {
 	};
 
 	return (
-		<DocumentListPage
-			title="계약 문서 일람"
-			rows={DUMMY_DATA}
-			columns={DOC_COLUMNS}
-			tabs={["전체", "R&D 계약", "구매 계약", "공사 계약", "법령"]}
-			showNewButton={role === "admin"} // admin만 +새문서 가능
-			onNewDocClick={handleNewDocClick}
-			onRowView={handleViewDocument}
-			onRowDelete={handleDelete}
-		/>
+		<>
+			<DocumentListPage
+				title="계약 문서 일람"
+				rows={DUMMY_DATA}
+				columns={DOC_COLUMNS}
+				tabs={["전체", "R&D 계약", "구매 계약", "공사 계약", "법령"]}
+				showNewButton={role === "admin"} // admin만 +새문서 가능
+				onNewDocClick={handleNewDocClick}
+				onRowView={handleViewDocument}
+				onRowDelete={handleDelete}
+			/>
+
+			{/* 파일 업로드 모달 */}
+			<FileUploadModal open={modalOpen} onClose={() => setModalOpen(false)} onUpload={handleUpload} />
+		</>
 	);
 }
 
