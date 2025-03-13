@@ -23,7 +23,6 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // Jenkins 작업 디렉터리는 이미 /contract-ai-partner 가 됩니다(스크립트 경로 기준).
                 // npm 패키지 설치
                 dir('contract-ai-partner') {
                     sh 'npm install'
