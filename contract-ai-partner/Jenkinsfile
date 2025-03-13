@@ -6,13 +6,6 @@ pipeline {
         nodejs "NodeJs" // Global Tool Configuration에서 지정한 이름
     }
 
-    // (선택) 환경 변수 설정
-    environment {
-        // Jenkins에 등록해 둔 AWS 자격증명(Username/Password 형태) - 예시 ID: aws-cred-frontend
-        AWS_ACCESS_KEY_ID     = credentials('aws-cred-frontend')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-cred-frontend')
-    }
-
     stages {
         stage('Debug') {
             steps {
