@@ -32,15 +32,10 @@
 			"react-app/jest",
 			"naver"
 		],
-		"rules": {
-			"linebreak-style": [
-				"error",
-				"windows"
-			]
-		}
+		"rules": {}
 	},
 	"prettier": {
-		"endOfLine": "crlf"
+		"endOfLine": "lf"
 	},
 	"browserslist": {
 		"production": [
