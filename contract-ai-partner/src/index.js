@@ -11,12 +11,17 @@ import adminTheme from "./styles/adminTheme";
 import RoleProvider from "./contexts/RoleProvider";
 import RoleContext from "./contexts/RoleContext";
 
+// 카테고리
+import {CategoryProvider} from "./contexts/CategoryContext";
+
 function Root() {
 	return (
 		<RoleProvider>
-			<ThemeWrapper>
-				<App />
-			</ThemeWrapper>
+			<CategoryProvider>
+				<ThemeWrapper>
+					<App />
+				</ThemeWrapper>
+			</CategoryProvider>
 		</RoleProvider>
 	);
 }
