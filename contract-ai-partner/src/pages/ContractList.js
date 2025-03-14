@@ -24,14 +24,14 @@ function ContractList() {
 			name: "문서이름 1",
 			category: "R&D 계약",
 			uploadDate: randomCreatedDate(),
-			status: "업로드 완료",
+			status: "AI 분석 완료",
 		}, {
 			id: 2,
 			iconType: "DOC",
 			name: "문서이름 2",
 			category: "구매 계약",
 			uploadDate: randomCreatedDate(),
-			status: "업로드 중",
+			status: "AI 분석 중",
 		},
 	];
 

@@ -19,8 +19,9 @@ const DOC_COLUMNS = [
 		align: "center",
 	}, {
 		field: "status",
-		headerName: "업로드 상태",
+		headerName: "문서 상태",
 		type: "singleSelect",
+		valueOptions: ["업로드 중", "업로드 실패", "AI 분석 중", "AI 분석 완료", "AI 분석 실패"],
 		width: 160,
 		headerAlign: "center",
 		align: "center",
