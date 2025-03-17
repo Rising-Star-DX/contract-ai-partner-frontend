@@ -2,14 +2,34 @@
 import React from "react";
 import {Box, Button, IconButton, Chip} from "@mui/material";
 import RemoveCircleOutlineOutlinedIcon from "@mui/icons-material/RemoveCircleOutlineOutlined";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload"; // 업로드 관련 아이콘
+import PsychologyIcon from "@mui/icons-material/Psychology"; // AI 분석 관련 아이콘
 import {getDocIcon} from "../utils/docUtils";
 
-// 상태에 따른 Chip 색상을 반환하는 별도 함수
-const getChipColor = status => {
-	if (status.includes("완료")) return "success";
-	if (status.includes("실패")) return "error";
-	if (status.includes("중")) return "info";
-	return "default";
+// 상태에 따른 Chip을 반환하는 함수
+const getStatusChip = status => {
+	let icon = null;
+	let color = "default";
+
+	if (status.includes("업로드")) {
+		icon = <CloudUploadIcon fontSize="small" />;
+		if (status.includes("실패")) {
+			color = "error";
+		} else {
+			color = "success";
+		}
+	} else if (status.includes("AI 분석")) {
+		icon = <PsychologyIcon fontSize="small" />;
+		if (status.includes("완료")) {
+			color = "secondary";
+		} else if (status.includes("실패")) {
+			color = "error";
+		} else {
+			color = "primary";
+		}
+	}
+
+	return <Chip icon={icon} label={status} color={color} sx={{pl: 1}} />;
 };
 
 const DOC_COLUMNS = (onRowView, onRowDelete) => [
@@ -45,7 +65,7 @@ const DOC_COLUMNS = (onRowView, onRowDelete) => [
 		valueOptions: ["업로드 중", "업로드 실패", "AI 분석 중", "AI 분석 완료", "AI 분석 실패"],
 		headerAlign: "center",
 		align: "center",
-		renderCell: params => <Chip label={params.value} color={getChipColor(params.value)} />,
+		renderCell: params => getStatusChip(params.value),
 	}, {
 		field: "view",
 		headerName: "",
