@@ -48,6 +48,7 @@ export const mapStandardDocsForGrid = data =>
 	data.map(doc => ({
 		id: doc.id,
 		name: doc.name,
+		category: doc.categoryName,
 		iconType: doc.type,
 		status: getStatusLabel(doc.status),
 		uploadDate: doc.createdAt,
