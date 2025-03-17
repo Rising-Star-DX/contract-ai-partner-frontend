@@ -7,19 +7,34 @@ import DocumentListPage from "../components/DocumentListPage";
 import DOC_COLUMNS from "../constants/docColumns";
 
 import {fetchStandardDocs} from "../api/standardApi";
+import {mapStandardDocsForGrid} from "../utils/docUtils";
+import {useCategory} from "../contexts/CategoryContext";
 
 function StandardList() {
 	const role = useContext(RoleContext);
 	const navigate = useNavigate();
 
-	// API 호출 관련
+	/* ###################
+	 *					*
+	 *	API 호출 관련	*
+	 *					*
+	 *###################*/
+
+	// 기준 문서
 	const [rows, setRows] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+
+	// 카테고리 전체 조회
+	const {categories} = useCategory();
 
 	// 기준 문서 데이터 API 호출
 	useEffect(() => {
 		fetchStandardDocs()
-			.then(data => setRows(data))
+			.then(data => {
+				const formattedData = mapStandardDocsForGrid(data);
+
+				setRows(formattedData);
+			})
 			.catch(error => console.error("기준 문서 로딩 중 오류 발생:", error))
 			.finally(() => setIsLoading(false));
 	}, []);
@@ -50,7 +65,7 @@ function StandardList() {
 			title="기준 문서 일람"
 			rows={rows}
 			columns={DOC_COLUMNS}
-			tabs={["전체", "R&D 계약", "구매 계약", "공사 계약", "법령"]}
+			tabs={categories.map(c => c.name)}
 			showNewButton={role === "admin"} // admin일 때만 새문서
 			onNewDocClick={handleNewStandardDoc}
 			onRowView={handleViewDoc}
