@@ -7,18 +7,20 @@ pipeline {
     }
 
     stages {
-        stage('Debug') {
-            steps {
-                sh 'ls -al'
-                sh 'ls -al contract-ai-partner'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 // npm 패키지 설치
                 dir('contract-ai-partner') {
+                    sh 'npm install path-browserify'
                     sh 'npm install'
+                }
+            }
+        }
+
+        stage('Update Webpack Config') {
+            steps {
+                dir('contract-ai-partner') {
+                    sh 'node update-webpack.js'
                 }
             }
         }
