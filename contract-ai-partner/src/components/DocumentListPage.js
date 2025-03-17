@@ -1,6 +1,14 @@
-// src/components/DocumentListPage.js
 import React from "react";
-import {Box, Typography, Button, Tabs, Tab, IconButton, InputBase} from "@mui/material";
+import {
+	Box,
+	Typography,
+	Button,
+	Tabs,
+	Tab,
+	IconButton,
+	InputBase,
+	CircularProgress,
+} from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineOutlinedIcon from "@mui/icons-material/RemoveCircleOutlineOutlined";
@@ -20,6 +28,7 @@ function DocumentListPage({
 	onNewDocClick, // + 새 문서 버튼 클릭 핸들러
 	onRowView, // 문서 보기 클릭 핸들러
 	onRowDelete, // 문서 삭제 클릭 핸들러
+	loading,
 }) {
 	// 탭 상태
 	const [tabValue, setTabValue] = React.useState(0);
@@ -130,32 +139,29 @@ function DocumentListPage({
 
 				{/* Datagrid 영역: 남은 공간 전부 차지 & 내부 스크롤 */}
 				<Box sx={{flexGrow: 1, overflow: "auto", bgcolor: "#FFFFFF"}}>
-					<DataGrid
-						rows={rows}
-						columns={mergedColumns}
-						pageSize={5}
-						rowsPerPageOptions={[5, 10, 20]}
-						checkboxSelection
-						disableSelectionOnClick
-						disableColumnMenu
-						rowHeight={56}
-						headerHeight={60}
-						sx={{
-							minHeight: "100%", // 공간을 꽉 채우도록
-							"& .MuiDataGrid-columnHeader": {
-								backgroundColor: "#E5E7E9",
-							},
-							"& .MuiDataGrid-columnHeaderTitle": {
-								fontSize: "20px",
-								fontWeight: 900,
-							},
-							"& .MuiDataGrid-cell": {
-								backgroundColor: "#FFFFFF",
-								fontSize: "16px",
-								fontWeight: 400,
-							},
-						}}
-					/>
+					{loading ? (
+						<Box sx={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
+							<CircularProgress />
+						</Box>
+					) : (
+						<DataGrid
+							rows={rows}
+							columns={mergedColumns}
+							pageSize={5}
+							rowsPerPageOptions={[5, 10, 20]}
+							checkboxSelection
+							disableSelectionOnClick
+							disableColumnMenu
+							rowHeight={56}
+							headerHeight={60}
+							sx={{
+								minHeight: "100%",
+								"& .MuiDataGrid-columnHeader": {backgroundColor: "#E5E7E9"},
+								"& .MuiDataGrid-columnHeaderTitle": {fontSize: "20px", fontWeight: 900},
+								"& .MuiDataGrid-cell": {backgroundColor: "#FFFFFF", fontSize: "16px", fontWeight: 400},
+							}}
+						/>
+					)}
 				</Box>
 			</Box>
 		</MainLayout>
