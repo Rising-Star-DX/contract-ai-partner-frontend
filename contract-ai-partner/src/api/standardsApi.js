@@ -8,12 +8,7 @@ const apiClient = axios.create({
 });
 
 // 기준 문서 리스트 조회
-export const fetchStandardDocs = async () => {
-	const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/standards`;
-
-	// 호출 직전에 API URL 콘솔에 출력
-	console.log("API 호출 URL:", apiUrl);
-
+export const fetchAllStandardDocs = async () => {
 	try {
 		const response = await apiClient.get("/standards");
 
@@ -26,4 +21,14 @@ export const fetchStandardDocs = async () => {
 	}
 };
 
-export const a = "";
+// 카테고리별 기준 문서 리스트 조회
+export const fetchStandardsByCategory = async categoryId => {
+	try {
+		const response = await apiClient.get(`/standards?category-id=${categoryId}`);
+
+		return response.data.data;
+	} catch (error) {
+		console.error(`기준 문서 카테고리(${categoryId}) 조회 실패:`, error);
+		throw error;
+	}
+};
