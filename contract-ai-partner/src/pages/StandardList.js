@@ -10,9 +10,14 @@ import useDocumentList from "../hooks/useDocumentList";
 import {fetchAllStandardDocs, fetchStandardsByCategory} from "../api/standardsApi";
 import {mapStandardDocsForGrid} from "../utils/docUtils";
 
+import FileUploadModal from "../components/FileUploadModal";
+
 function StandardList() {
 	const role = useContext(RoleContext);
 	const navigate = useNavigate();
+
+	// 모달 창 상태
+	const [modalOpen, setModalOpen] = useState(false);
 
 	const {categories} = useCategory();
 
@@ -41,7 +46,7 @@ function StandardList() {
 
 	// 새 문서 버튼 클릭
 	const handleNewStandardDoc = () => {
-		alert("새 기준 문서 등록 (Standard)");
+		setModalOpen(true);
 	};
 
 	// 문서 삭제 버튼 클릭
@@ -49,21 +54,31 @@ function StandardList() {
 		alert(`기준문서 ID ${id} 삭제 (예시)`);
 	};
 
+	const handleUpload = file => {
+		console.log("업로드된 파일:", file);
+		setModalOpen(false);
+	};
+
 	return (
-		<DocumentListPage
-			title="기준 문서 일람"
-			rows={documents}
-			columns={DOC_COLUMNS}
-			tabs={categories}
-			showNewButton={role === "admin"}
-			onNewDocClick={handleNewStandardDoc}
-			onRowView={handleViewDoc}
-			onRowDelete={handleDelete}
-			loading={loading}
-			tabValue={tabValue}
-			onTabChange={(e, newValue) => setTabValue(newValue)}
-			error={error}
-		/>
+		<>
+			<DocumentListPage
+				title="기준 문서 일람"
+				rows={documents}
+				columns={DOC_COLUMNS}
+				tabs={categories}
+				showNewButton={role === "admin"}
+				onNewDocClick={handleNewStandardDoc}
+				onRowView={handleViewDoc}
+				onRowDelete={handleDelete}
+				loading={loading}
+				tabValue={tabValue}
+				onTabChange={(e, newValue) => setTabValue(newValue)}
+				error={error}
+			/>
+
+			{/* 파일 업로드 모달 */}
+			<FileUploadModal open={modalOpen} onClose={() => setModalOpen(false)} onUpload={handleUpload} />
+		</>
 	);
 }
 
