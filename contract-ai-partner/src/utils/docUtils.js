@@ -29,24 +29,11 @@ export const getDocIcon = type => {
 	}
 };
 
-// 날짜 포맷팅 함수
-export const formatDate = dateStr => {
-	const date = new Date(dateStr);
-
-	return date.toLocaleDateString("ko-KR", {
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-	});
-};
-
 // 상태 처리 함수
 export const getStatusLabel = status => {
 	const statusMap = {
-		UPLOADING: "파일 업로드 중",
-		"FILE-FAILED": "파일 업로드 실패",
+		UPLOADING: "업로드 중",
+		"FILE-FAILED": "업로드 실패",
 		ANALYZING: "AI 분석 중",
 		"AI-FAILED": "AI 분석 실패",
 		SUCCESS: "AI 분석 완료",
@@ -63,5 +50,5 @@ export const mapStandardDocsForGrid = data =>
 		name: doc.name,
 		iconType: doc.type,
 		status: getStatusLabel(doc.status),
-		uploadDate: formatDate(doc.createdAt),
+		uploadDate: doc.createdAt,
 	}));
