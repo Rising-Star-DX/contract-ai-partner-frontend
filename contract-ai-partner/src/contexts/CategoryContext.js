@@ -16,7 +16,7 @@ export const CategoryProvider = ({children}) => {
 	// const [loading, setLoading] = useState(false);
 	// const [error, setError] = useState(null);
 
-	const categories = [{id: 1, name: "전체"}, {id: 2, name: "R&D 계약"}, {id: 3, name: "구매 계약"}, {id: 4, name: "공사 계약"}, {id: 5, name: "법령"}];
+	const categories = [{id: 0, name: "전체"}, {id: 1, name: "R&D 계약"}, {id: 3, name: "구매 계약"}, {id: 4, name: "공사 계약"}, {id: 8, name: "법령"}];
 	const loading = false;
 	const error = null;
 

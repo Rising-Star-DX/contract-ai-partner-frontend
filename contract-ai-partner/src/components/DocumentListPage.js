@@ -1,4 +1,5 @@
-import React from "react";
+// src/components/DocumentListPage.js
+import React, {useState} from "react";
 import {
 	Box,
 	Typography,
@@ -14,7 +15,6 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import MainLayout from "../layouts/MainLayout";
 
-// DocumentListPage 재사용 컴포넌트
 function DocumentListPage({
 	title, // 페이지 상단 제목: ex) "계약 문서 일람", "기준 문서 일람"
 	rows, // DataGrid에 넣을 row 데이터
@@ -25,26 +25,69 @@ function DocumentListPage({
 	onRowView, // 문서 보기 클릭 핸들러
 	onRowDelete, // 문서 삭제 클릭 핸들러
 	loading,
+	tabValue,
+	onTabChange,
+	error,
 }) {
-	// 탭 상태
-	const [tabValue, setTabValue] = React.useState(0);
-	const handleTabChange = (e, newValue) => setTabValue(newValue);
+	const [searchTerm, setSearchTerm] = useState("");
 
-	// 검색어 상태 (필요하면 활용)
-	const [searchTerm, setSearchTerm] = React.useState("");
+	const renderContent = () => {
+		if (loading) {
+			return (
+				<Box sx={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
+					<CircularProgress />
+				</Box>
+			);
+		}
+
+		if (error) {
+			return (
+				<Box sx={{p: 2}}>
+					<Typography color="error">{error}</Typography>
+				</Box>
+			);
+		}
+
+		if (!loading && !error && rows.length === 0) {
+			return (
+				<Box sx={{p: 2}}>
+					<Typography color="textSecondary">해당 카테고리에 문서가 없습니다.</Typography>
+				</Box>
+			);
+		}
+
+		return (
+			<DataGrid
+				rows={rows}
+				columns={columns(onRowView, onRowDelete)}
+				pageSize={5}
+				rowsPerPageOptions={[5, 10, 20]}
+				checkboxSelection
+				disableSelectionOnClick
+				disableColumnMenu
+				rowHeight={56}
+				headerHeight={60}
+				sx={{
+					minHeight: "100%",
+					"& .MuiDataGrid-columnHeader": {backgroundColor: "#E5E7E9"},
+					"& .MuiDataGrid-columnHeaderTitle": {fontSize: "20px", fontWeight: 900},
+					"& .MuiDataGrid-cell": {backgroundColor: "#FFFFFF", fontSize: "16px", fontWeight: 400},
+				}}
+			/>
+		);
+	};
 
 	return (
 		<MainLayout>
-			{/* 전체 화면(사이드바 영역) 내 스크롤은 없애고, 내부에서만 스크롤 */}
 			<Box
 				sx={{
 					display: "flex",
 					flexDirection: "column",
 					height: "100%",
-					overflow: "hidden", // 여기서도 스크롤 감춤
+					overflow: "hidden",
 				}}
 			>
-				{/* 상단: 제목 + 새 문서 버튼 */}
+				{/* 제목 & 새 문서 버튼 */}
 				<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", pb: 2}}>
 					<Typography variant="h4" fontWeight="bold">
 						{title}
@@ -56,28 +99,19 @@ function DocumentListPage({
 					)}
 				</Box>
 
-				{/* 탭 영역 */}
+				{/* 카테고리 탭 */}
 				{tabs.length > 0 && (
 					<Box sx={{borderBottom: 2, borderColor: "divider", mb: 2}}>
-						<Tabs value={tabValue} onChange={handleTabChange}>
-							{tabs.map((tabLabel, idx) => (
-								<Tab key={tabLabel} label={tabLabel} value={idx} />
+						<Tabs value={tabValue} onChange={onTabChange}>
+							{tabs.map(tab => (
+								<Tab key={tab.id} label={tab.name} />
 							))}
 						</Tabs>
 					</Box>
 				)}
 
-				{/* 검색 */}
-				<Box
-					sx={{
-						display: "flex",
-						alignItems: "center",
-						p: 2,
-						bgcolor: "#FFFFFF",
-						mb: 2,
-						flexShrink: 0, // 높이 고정
-					}}
-				>
+				{/* 검색 입력 */}
+				<Box sx={{display: "flex", alignItems: "center", p: 2, bgcolor: "#FFFFFF", mb: 2}}>
 					<IconButton>
 						<SearchIcon />
 					</IconButton>
@@ -89,33 +123,8 @@ function DocumentListPage({
 					/>
 				</Box>
 
-				{/* Datagrid 영역: 남은 공간 전부 차지 & 내부 스크롤 */}
-				<Box sx={{flexGrow: 1, overflow: "auto", bgcolor: "#FFFFFF"}}>
-					{loading ? (
-						<Box sx={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
-							<CircularProgress />
-						</Box>
-					) : (
-						<DataGrid
-							rows={rows}
-							columns={columns(onRowView, onRowDelete)}
-							pageSize={5}
-							rowsPerPageOptions={[5, 10, 20]}
-							checkboxSelection
-							disableSelectionOnClick
-							disableColumnMenu
-							disableExtendRowFullWidth
-							rowHeight={56}
-							headerHeight={60}
-							sx={{
-								minHeight: "100%",
-								"& .MuiDataGrid-columnHeader": {backgroundColor: "#E5E7E9"},
-								"& .MuiDataGrid-columnHeaderTitle": {fontSize: "20px", fontWeight: 900},
-								"& .MuiDataGrid-cell": {backgroundColor: "#FFFFFF", fontSize: "16px", fontWeight: 400},
-							}}
-						/>
-					)}
-				</Box>
+				{/* 문서 리스트 영역 */}
+				<Box sx={{flexGrow: 1, overflow: "auto", bgcolor: "#FFFFFF"}}>{renderContent()}</Box>
 			</Box>
 		</MainLayout>
 	);
