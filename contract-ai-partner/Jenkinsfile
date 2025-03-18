@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+    
+    // node 사용 설정
+    tools {
+        nodejs "NodeJs" // Global Tool Configuration에서 지정한 이름
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                // npm 패키지 설치
+                dir('contract-ai-partner') {
+                    sh 'npm install path-browserify'
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Update Webpack Config') {
+            steps {
+                dir('contract-ai-partner') {
+                    sh 'node update-webpack.js'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // React 프로덕션 빌드
+                dir('contract-ai-partner') {
+                    sh 'CI=false npm run build'
+                }
+            }
+        }
+
+        stage('Deploy to S3') {
+            steps {
+                // AWS CLI로 S3 동기화
+                // AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY 환경변수를 참조.
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-cred-frontend', // 이미 존재하는 'Username & password' 타입 Credential
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    dir('contract-ai-partner') {
+                        sh '''
+                        aws s3 sync build/ s3://rising-star-react \
+                            --delete \
+                            --region ap-northeast-2
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Invalidate CloudFront') {
+            steps {
+                // CloudFront 캐시 무효화
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-cred-frontend', // 이미 존재하는 'Username & password' 타입 Credential
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    dir('contract-ai-partner') {
+                        sh '''
+                        aws cloudfront create-invalidation \
+                            --distribution-id E1F9N524PHSA3M \
+                            --paths "/*"
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ 빌드 및 배포에 성공했습니다!"
+        }
+        failure {
+            echo "❌ 배포 실패! 로그를 확인해 주세요."
+        }
+    }
+}
