@@ -9,7 +9,7 @@ import { useCategory } from "../contexts/CategoryContext";
 import useDocumentList from "../hooks/useDocumentList";
 import {
     fetchAllStandardDocs,
-    fetchStandardsByCategory,
+    fetchStandardsByCategory
 } from "../api/standardsApi";
 import { mapStandardDocsForGrid } from "../utils/docUtils";
 
@@ -33,8 +33,10 @@ function StandardList() {
         selectedCategoryId,
         fetchStandardsByCategory,
         fetchAllStandardDocs,
-        mapStandardDocsForGrid,
+        mapStandardDocsForGrid
     );
+
+    console.log(documents);
 
     // 문서 보기 클릭
     const handleViewDoc = (row) => {
@@ -42,8 +44,8 @@ function StandardList() {
             state: {
                 docName: row.name,
                 category: row.category,
-                docType: row.iconType,
-            },
+                docType: row.iconType
+            }
         });
     };
 

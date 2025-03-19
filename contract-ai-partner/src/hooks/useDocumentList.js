@@ -5,7 +5,7 @@ const useDocumentList = (
     categoryId,
     fetchFunction,
     fetchAllFunction,
-    mapper,
+    mapper
 ) => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -20,14 +20,18 @@ const useDocumentList = (
                     ? await fetchFunction(categoryId)
                     : await fetchAllFunction();
 
+                console.log(data);
+
                 // 데이터가공 함수(mapper)가 있으면 가공 적용
                 const formattedData = mapper ? mapper(data) : data;
+
+                console.log(formattedData);
 
                 setDocuments(formattedData);
 
                 if (!data || data.length === 0) {
                     console.warn(
-                        "⚠️ 빈 데이터 응답! setError는 호출되지 않음.",
+                        "⚠️ 빈 데이터 응답! setError는 호출되지 않음."
                     );
                 }
             } catch (e) {

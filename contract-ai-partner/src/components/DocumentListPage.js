@@ -8,7 +8,7 @@ import {
     Tab,
     IconButton,
     InputBase,
-    CircularProgress,
+    CircularProgress
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
@@ -27,9 +27,11 @@ function DocumentListPage({
     loading,
     tabValue,
     onTabChange,
-    error,
+    error
 }) {
     const [searchTerm, setSearchTerm] = useState("");
+
+    console.log(rows);
 
     const renderContent = () => {
         if (loading) {
@@ -39,7 +41,7 @@ function DocumentListPage({
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        height: "100%",
+                        height: "100%"
                     }}
                 >
                     <CircularProgress />
@@ -55,7 +57,7 @@ function DocumentListPage({
             );
         }
 
-        if (!loading && !error && rows.length === 0) {
+        if (!loading && !error && !rows) {
             return (
                 <Box sx={{ p: 2 }}>
                     <Typography color="textSecondary">
@@ -79,17 +81,17 @@ function DocumentListPage({
                 sx={{
                     minHeight: "100%",
                     "& .MuiDataGrid-columnHeader": {
-                        backgroundColor: "#E5E7E9",
+                        backgroundColor: "#E5E7E9"
                     },
                     "& .MuiDataGrid-columnHeaderTitle": {
                         fontSize: "20px",
-                        fontWeight: 900,
+                        fontWeight: 900
                     },
                     "& .MuiDataGrid-cell": {
                         backgroundColor: "#FFFFFF",
                         fontSize: "16px",
-                        fontWeight: 400,
-                    },
+                        fontWeight: 400
+                    }
                 }}
             />
         );
@@ -102,7 +104,7 @@ function DocumentListPage({
                     display: "flex",
                     flexDirection: "column",
                     height: "100%",
-                    overflow: "hidden",
+                    overflow: "hidden"
                 }}
             >
                 {/* 제목 & 새 문서 버튼 */}
@@ -111,7 +113,7 @@ function DocumentListPage({
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        pb: 2,
+                        pb: 2
                     }}
                 >
                     <Typography variant="h4" fontWeight="bold">
@@ -149,7 +151,7 @@ function DocumentListPage({
                         alignItems: "center",
                         p: 2,
                         bgcolor: "#FFFFFF",
-                        mb: 2,
+                        mb: 2
                     }}
                 >
                     <IconButton>

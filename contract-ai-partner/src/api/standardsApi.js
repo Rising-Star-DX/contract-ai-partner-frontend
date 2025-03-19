@@ -3,16 +3,16 @@ import axios from "axios";
 const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
-        "Content-Type": "application/json",
-    },
+        "Content-Type": "application/json"
+    }
 });
 
 // 기준 문서 리스트 조회
 export const fetchAllStandardDocs = async () => {
+    console.log(`${process.env.REACT_APP_API_BASE_URL}/standards`);
+
     try {
         const response = await apiClient.get("/standards");
-
-        console.log(response.data.data);
 
         return response.data.data; // data 필드 반환
     } catch (error) {
@@ -25,7 +25,7 @@ export const fetchAllStandardDocs = async () => {
 export const fetchStandardsByCategory = async (categoryId) => {
     try {
         const response = await apiClient.get(
-            `/standards?category-id=${categoryId}`,
+            `/standards?category-id=${categoryId}`
         );
 
         return response.data.data;
