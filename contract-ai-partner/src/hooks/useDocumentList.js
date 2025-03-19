@@ -45,7 +45,7 @@ const useDocumentList = (
         fetchData();
     }, [categoryId, fetchFunction, fetchAllFunction, mapper]);
 
-    return { documents, loading, error };
+    return { documents, loading, error, setDocuments };
 };
 
 export default useDocumentList;

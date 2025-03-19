@@ -34,3 +34,27 @@ export const fetchStandardsByCategory = async (categoryId) => {
         throw error;
     }
 };
+
+// 이름으로 기준 문서 검색
+export const fetchStandardsByName = async (name) => {
+    try {
+        const response = await apiClient.get(
+            `/standards?name=${encodeURIComponent(name)}`
+        );
+
+        return response.data.data;
+    } catch (error) {
+        console.error(`기준 문서 이름(${name}) 검색 실패:`, error);
+        throw error;
+    }
+};
+
+// 기준 문서 삭제
+export const deleteStandardDoc = async (id) => {
+    try {
+        await apiClient.delete(`/standards/${id}`);
+    } catch (error) {
+        console.error(`기준 문서(${id}) 삭제 실패:`, error);
+        throw error;
+    }
+};
