@@ -32,9 +32,11 @@ pipeline {
 
         stage('Create .env.production') {
             steps {
-                sh '''
-                echo "REACT_APP_API_BASE_URL=$API_BASE_URL" > .env.production
-                '''
+                    dir('contract-ai-partner') {
+                        sh '''
+                        echo "REACT_APP_API_BASE_URL=$API_BASE_URL" > .env.production
+                        '''
+                    }
             }
         }
 
