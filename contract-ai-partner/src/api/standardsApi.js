@@ -7,6 +7,53 @@ const apiClient = axios.create({
     }
 });
 
+// 기준 문서 업로드 init
+export const initStandardDoc = async (docBody) => {
+    // docBody 예시: { name: "~~~에 대한 기준 문서.pdf", type: "PDF", categoryId: 123 }
+    try {
+        const response = await apiClient.post(
+            "/standards/upload/init",
+            docBody
+        );
+
+        console.log(response.data.data);
+
+        return response.data.data; // { id: ..., ... } 등의 응답이 온다고 가정
+    } catch (error) {
+        console.error("기준 문서 업로드 init 실패:", error);
+        throw error;
+    }
+};
+
+// s3 파일 업로드 (/standards/upload/{id})
+// onUploadProgress 콜백을 통해 업로드 진행률을 UI로 반영
+export const uploadStandardFile = async (
+    standardId,
+    file,
+    onUploadProgress
+) => {
+    try {
+        // Multipart 전송
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        const response = await apiClient.patch(
+            `/standards/upload/${standardId}`,
+            formData,
+            {
+                headers: { "Content-Type": "multipart/form-data" },
+                onUploadProgress
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error(`기준 문서 업로드(${standardId}) 실패:`, error);
+        throw error;
+    }
+};
+
 // 기준 문서 리스트 조회
 export const fetchAllStandardDocs = async () => {
     console.log(`${process.env.REACT_APP_API_BASE_URL}/standards`);

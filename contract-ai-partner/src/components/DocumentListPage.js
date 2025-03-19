@@ -22,11 +22,11 @@ function DocumentListPage({
     onNewDocClick, // + 새 문서 버튼 클릭 핸들러
     onRowView, // 문서 보기 클릭 핸들러
     onRowDelete, // 문서 삭제 클릭 핸들러
-    loading,
-    tabValue,
-    onTabChange,
-    error,
-    onSearch
+    loading, // 문서 리스트 조회 로딩
+    tabValue, // 카테고리 탭
+    onTabChange, // 탭 변경 핸들러
+    error, // 문서 리스트 조회 에러
+    onSearch // 검색어 조회 핸들러
 }) {
     const renderContent = () => {
         if (loading) {
