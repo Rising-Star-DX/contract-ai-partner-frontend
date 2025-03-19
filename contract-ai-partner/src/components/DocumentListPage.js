@@ -1,19 +1,17 @@
 // src/components/DocumentListPage.js
-import React, { useState } from "react";
+import React from "react";
 import {
     Box,
     Typography,
     Button,
     Tabs,
     Tab,
-    IconButton,
-    InputBase,
     CircularProgress
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import SearchIcon from "@mui/icons-material/Search";
 
 import MainLayout from "../layouts/MainLayout";
+import SearchBar from "./SearchBar";
 
 function DocumentListPage({
     title, // 페이지 상단 제목: ex) "계약 문서 일람", "기준 문서 일람"
@@ -27,12 +25,9 @@ function DocumentListPage({
     loading,
     tabValue,
     onTabChange,
-    error
+    error,
+    onSearch
 }) {
-    const [searchTerm, setSearchTerm] = useState("");
-
-    console.log(rows);
-
     const renderContent = () => {
         if (loading) {
             return (
@@ -144,26 +139,8 @@ function DocumentListPage({
                     </Box>
                 )}
 
-                {/* 검색 입력 */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        p: 2,
-                        bgcolor: "#FFFFFF",
-                        mb: 2
-                    }}
-                >
-                    <IconButton>
-                        <SearchIcon />
-                    </IconButton>
-                    <InputBase
-                        placeholder="검색어 입력"
-                        sx={{ ml: 1, flex: 1 }}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </Box>
+                {/* 검색 바 컴포넌트 사용 */}
+                <SearchBar onSearch={onSearch} placeholder="검색어 입력" />
 
                 {/* 문서 리스트 영역 */}
                 <Box sx={{ flexGrow: 1, overflow: "auto", bgcolor: "#FFFFFF" }}>
