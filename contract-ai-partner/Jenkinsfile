@@ -6,6 +6,11 @@ pipeline {
         nodejs "NodeJs" // Global Tool Configuration에서 지정한 이름
     }
 
+    // API URL 사용 설정
+    environment {
+        API_BASE_URL = credentials('API_BASE_URL')
+    }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -22,6 +27,14 @@ pipeline {
                 dir('contract-ai-partner') {
                     sh 'node update-webpack.js'
                 }
+            }
+        }
+
+        stage('Create .env.production') {
+            steps {
+                sh '''
+                echo "REACT_APP_API_BASE_URL=$API_BASE_URL" > .env.production
+                '''
             }
         }
 
