@@ -37,19 +37,21 @@ export const getStatusLabel = (status) => {
         ANALYZING: "AI 분석 중",
         "AI-FAILED": "AI 분석 실패",
         SUCCESS: "AI 분석 완료",
-        null: "상태 정보 없음",
+        null: "상태 정보 없음"
     };
 
     return statusMap[status];
 };
 
 // API 데이터를 DataGrid 형식으로 변환
-export const mapStandardDocsForGrid = (data) =>
-    data.map((doc) => ({
-        id: doc.id,
-        name: doc.name,
-        category: doc.categoryName,
-        iconType: doc.type,
-        status: getStatusLabel(doc.status),
-        uploadDate: doc.createdAt,
-    }));
+export const mapStandardDocsForGrid = (data) => {
+    data &&
+        data.map((doc) => ({
+            id: doc.id,
+            name: doc.name,
+            category: doc.categoryName,
+            iconType: doc.type,
+            status: getStatusLabel(doc.status),
+            uploadDate: doc.createdAt
+        }));
+};
