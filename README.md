@@ -1,1 +1,1 @@
- contract-ai-partner-frontend
+contract-ai-partner-frontend
