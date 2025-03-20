@@ -55,15 +55,25 @@ export const uploadStandardFile = async (
 };
 
 export const requestAnalysis = async (standardId) => {
+    console.log(
+        `${process.env.REACT_APP_API_BASE_URL}//standards/analysis/${standardId}`
+    );
+
     try {
-        // 예: /standards/analysis?id=123
+        // 예: /standards/analysis/123
         const response = await apiClient.patch(
-            `/standards/analysis?id=${standardId}`
+            `/standards/analysis/${standardId}`
         );
 
-        return response.data; // AI 분석 결과에 대한 응답값
+        console.log(response.data.data);
+
+        return response.data.data; // AI 분석 결과에 대한 응답값
     } catch (error) {
-        console.error(`AI 분석 요청(${standardId}) 실패:`, error);
+        console.error(
+            `AI 분석 요청(${standardId}) 실패:`,
+            error.code,
+            error.message
+        );
         throw error;
     }
 };
