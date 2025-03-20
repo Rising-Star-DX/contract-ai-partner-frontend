@@ -10,7 +10,7 @@ const apiClient = axios.create({
 // 카테고리 전체 조회
 export const getCategories = async () => {
     try {
-        const response = await apiClient.get("/category");
+        const response = await apiClient.get("/categories");
 
         return response.data.data;
     } catch (error) {
