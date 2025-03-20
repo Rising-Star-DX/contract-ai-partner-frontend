@@ -18,8 +18,21 @@ export const CategoryProvider = ({ children }) => {
         try {
             const data = await getCategories();
 
+            console.log(data);
+
+            // 전체 카테고리
+            const all = {
+                id: 0,
+                name: "전체",
+                countOfStandards: 0,
+                countOfAgreements: 0,
+                createdAt: ""
+            };
+
             // 필요한 데이터 가공 후 상태에 저장
-            setCategories(data);
+            setCategories([all, ...data]);
+
+            console.log(categories);
         } catch (fetchError) {
             setError("카테고리를 불러오지 못했습니다.");
             console.error("카테고리 조회 오류:", fetchError);
