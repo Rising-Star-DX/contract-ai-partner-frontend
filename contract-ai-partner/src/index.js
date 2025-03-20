@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "@mui/material/styles";
+// QueryClient
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import App from "./App";
 
@@ -14,15 +16,20 @@ import RoleContext from "./contexts/RoleContext";
 // 카테고리
 import { CategoryProvider } from "./contexts/CategoryContext";
 
+// 쿼리 클라이언트 - 캐시 데이터 업데이트 라이브러리
+const queryClient = new QueryClient();
+
 function Root() {
     return (
-        <RoleProvider>
-            <CategoryProvider>
-                <ThemeWrapper>
-                    <App />
-                </ThemeWrapper>
-            </CategoryProvider>
-        </RoleProvider>
+        <QueryClientProvider client={queryClient}>
+            <RoleProvider>
+                <CategoryProvider>
+                    <ThemeWrapper>
+                        <App />
+                    </ThemeWrapper>
+                </CategoryProvider>
+            </RoleProvider>
+        </QueryClientProvider>
     );
 }
 
