@@ -1,12 +1,12 @@
 // src/pages/StandardList.js
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 import RoleContext from "../contexts/RoleContext";
 import DocumentListPage from "../components/DocumentListPage";
 import DOC_COLUMNS from "../constants/docColumns";
 import { useCategory } from "../contexts/CategoryContext";
-import useDocumentList from "../hooks/useDocumentList";
 import {
     fetchAllStandardDocs,
     fetchStandardsByCategory,
@@ -26,19 +26,62 @@ function StandardList() {
 
     const { categories } = useCategory();
 
+    // 검색 상태
+    const [searchValue, setSearchValue] = useState("");
+
     // 탭 상태 관리
     const [tabValue, setTabValue] = useState(0);
     const selectedCategoryId = categories[tabValue]?.id || null;
 
-    // 문서 리스트 가져오는 커스텀 훅
-    const { documents, loading, error, setDocuments } = useDocumentList(
-        selectedCategoryId,
-        fetchStandardsByCategory,
-        fetchAllStandardDocs,
-        mapStandardDocsForGrid
-    );
+    // 검색 키워드 + 카테고리를 종합해서 한 번에 불러오는 함수
+    const fetchDocuments = async () => {
+        if (searchValue.trim()) {
+            // 검색어가 있으면 이름으로 검색
+            const data = await fetchStandardsByName(searchValue);
 
-    console.log(documents);
+            return mapStandardDocsForGrid(data);
+        } else if (selectedCategoryId) {
+            // 카테고리가 있으면 해당 카테고리 문서 조회
+            const data = await fetchStandardsByCategory(selectedCategoryId);
+
+            return mapStandardDocsForGrid(data);
+        }
+        // 둘 다 없으면 전체 문서 조회
+        const data = await fetchAllStandardDocs();
+
+        return mapStandardDocsForGrid(data);
+    };
+
+    // useQuery 훅 - React Query
+    const {
+        data: documents = [], // 문서 목록 (기본값 [])
+        isLoading,
+        isError,
+        refetch
+    } = useQuery({
+        queryKey: ["documents", selectedCategoryId, searchValue], // 캐시 키
+        queryFn: fetchDocuments, // API 호출 함수
+        // 5초마다 자동 리페치 (폴링)
+        refetchInterval: (query) => {
+            console.log(query.state.data);
+
+            if (!query.state.data) return false;
+            // data에 IN_PROGRESS가 하나라도 있으면 5초
+            const inProgress = query.state.data.some(
+                (doc) => doc.status === "AI 분석 중"
+            );
+
+            if (inProgress) {
+                console.log("AI 분석 중 존재");
+                return 500;
+            }
+            return false; // 없으면 폴링 해제
+        },
+        // 컴포넌트가 포커스될 때 자동 리페치
+        refetchOnWindowFocus: false,
+        // 데이터를 최대로 몇 초 동안 캐시에 둬서 stale 상태를 방지할지 등등...
+        staleTime: 0
+    });
 
     // 문서 보기 클릭
     const handleViewDoc = (row) => {
@@ -67,16 +110,8 @@ function StandardList() {
             await deleteStandardDoc(rowId);
             alert("문서가 성공적으로 삭제되었습니다.");
 
-            // 최신 목록 불러오기 (카테고리가 있을 때 vs 없을 때 분기)
-            let updatedDocs;
-
-            if (selectedCategoryId) {
-                updatedDocs =
-                    await fetchStandardsByCategory(selectedCategoryId);
-            } else {
-                updatedDocs = await fetchAllStandardDocs();
-            }
-            setDocuments(mapStandardDocsForGrid(updatedDocs));
+            // 삭제 후 문서 목록 다시 불러오기
+            refetch();
         } catch (deleteError) {
             console.error("삭제 중 오류:", deleteError);
             alert("문서를 삭제하지 못했습니다. 다시 시도해주세요.");
@@ -87,31 +122,13 @@ function StandardList() {
     const handleUpload = (file) => {
         console.log("업로드된 파일:", file);
         setModalOpen(false);
+        refetch();
     };
 
     // 문서 이름 검색
-    const handleSearch = async (keyword) => {
-        try {
-            let data;
-
-            if (!keyword.trim()) {
-                // 검색어가 없으므로 카테고리 기준으로 조회
-                data = selectedCategoryId
-                    ? await fetchStandardsByCategory(selectedCategoryId)
-                    : await fetchAllStandardDocs();
-            } else {
-                // 검색어가 있으므로 이름 검색
-                data = await fetchStandardsByName(keyword);
-            }
-
-            // 검색 후 데이터 매핑
-            const mapped = mapStandardDocsForGrid(data);
-
-            setDocuments(mapped);
-        } catch (searchError) {
-            console.error("문서 검색 중 오류가 발생했습니다:", searchError);
-            // 필요하다면 에러 상태 업데이트 로직 추가
-        }
+    const handleSearch = (keyword) => {
+        setSearchValue(keyword);
+        // searchValue 값이 바뀌면 queryKey 변경으로 자동 refetch
     };
 
     return (
@@ -125,10 +142,10 @@ function StandardList() {
                 onNewDocClick={handleNewStandardDoc}
                 onRowView={handleViewDoc}
                 onRowDelete={handleDelete}
-                loading={loading}
+                loading={isLoading}
                 tabValue={tabValue}
                 onTabChange={(e, newValue) => setTabValue(newValue)}
-                error={error}
+                error={isError ? "문서 목록 로딩 중 오류 발생" : null}
                 onSearch={handleSearch}
             />
 
