@@ -54,6 +54,20 @@ export const uploadStandardFile = async (
     }
 };
 
+export const requestAnalysis = async (standardId) => {
+    try {
+        // 예: /standards/analysis?id=123
+        const response = await apiClient.patch(
+            `/standards/analysis?id=${standardId}`
+        );
+
+        return response.data; // AI 분석 결과에 대한 응답값
+    } catch (error) {
+        console.error(`AI 분석 요청(${standardId}) 실패:`, error);
+        throw error;
+    }
+};
+
 // 기준 문서 리스트 조회
 export const fetchAllStandardDocs = async () => {
     console.log(`${process.env.REACT_APP_API_BASE_URL}/standards`);

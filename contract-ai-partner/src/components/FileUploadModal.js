@@ -23,7 +23,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import mime from "mime-types";
 
 import { useCategory } from "../contexts/CategoryContext"; // Context에서 카테고리 가져오기
-import { initStandardDoc, uploadStandardFile } from "../api/standardsApi";
+import {
+    initStandardDoc,
+    uploadStandardFile,
+    requestAnalysis
+} from "../api/standardsApi";
 
 const FileUploadModal = ({ open, onClose, onUpload }) => {
     const { categories, loading, error } = useCategory();
@@ -164,6 +168,17 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
 
             await Promise.all(patchPromises);
 
+            // (2) AI 분석 요청 -> 기다리지 않고 비동기로 "던져두기"
+            uploadingFiles.forEach((item) => {
+                // 에러만 로그 찍고, 성공 여부는 굳이 대기하지 않음
+                requestAnalysis(item.standardId).catch((err) => {
+                    console.error(
+                        `AI 분석 요청(${item.standardId}) 중 오류:`,
+                        err
+                    );
+                });
+            });
+
             // 업로드 완료 후 처리
             if (uploadingFiles.length === 1) {
                 // 파일이 1개면 상세화면 이동 등
@@ -288,6 +303,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                                         <DeleteIcon />
                                     </IconButton>
                                 }
+                                sx={{ bgcolor: "#EAECEE" }}
                             >
                                 <ListItemText primary={item.file.name} />
                                 <LinearProgress
