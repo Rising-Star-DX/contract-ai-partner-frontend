@@ -102,12 +102,49 @@ export const fetchStandardsByName = async (name) => {
     }
 };
 
+// 이름 + 카테고리로 기준 문서 검색
+export const fetchStandardsByNameAndCategory = async (name, categoryId) => {
+    console.log(
+        `/standards?category-id=${categoryId}&name=${encodeURIComponent(name)}`
+    );
+
+    try {
+        const response = await apiClient.get(
+            `/standards?category-id=${categoryId}&name=${encodeURIComponent(
+                name
+            )}`
+        );
+
+        console.log(name, categoryId, response.data.data);
+
+        return response.data.data;
+    } catch (error) {
+        console.error(
+            `기준 문서 이름(${name}) + 카테고리(${categoryId}) 검색 실패:`,
+            error
+        );
+        throw error;
+    }
+};
+
 // 기준 문서 삭제
 export const deleteStandardDoc = async (id) => {
     try {
         await apiClient.delete(`/standards/${id}`);
     } catch (error) {
         console.error(`기준 문서(${id}) 삭제 실패:`, error);
+        throw error;
+    }
+};
+
+// 기준 문서 업로드 취소
+export const cancelUploadedDoc = async (id) => {
+    try {
+        await apiClient.delete(`/standards/upload/${id}`);
+
+        console.log(`기준 문서(${id}) 업로드 취소 완료`);
+    } catch (error) {
+        console.error(`기준 문서(${id}) 업로드 취소 실패:`, error);
         throw error;
     }
 };
