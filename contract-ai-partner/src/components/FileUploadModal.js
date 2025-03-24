@@ -17,7 +17,7 @@ import {
     IconButton
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import mime from "mime-types";
 
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -25,9 +25,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useCategory } from "../contexts/CategoryContext";
-import { uploadStandardDoc, requestAnalysis } from "../api/standardsApi";
 
-// import { checkCategoryDocs } from "../api/categoryApi";
+import { uploadStandardDoc, requestAnalysis } from "../api/standardsApi";
+import { checkCategoryDocs } from "../api/categoryApi";
 
 const FileUploadModal = ({ open, onClose, onUpload }) => {
     const { categories, loading, error } = useCategory();
@@ -35,39 +35,42 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     const [uploadingFiles, setUploadingFiles] = useState([]);
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // 현재 문서 종류
+    const docType = location.pathname.startsWith("/agreement")
+        ? "AGREEMENT"
+        : "STANDARD";
 
     // 전체 카테고리 삭제
     const slicedCategory = categories.slice(1);
 
-    // // 카테고리에 기준 문서 존재 여부
-    // const setHasCategoryDocs = useState(false);
+    // ─────────────────────────────────────────────
+    // 카테고리 선택 시, 해당 카테고리 문서 존재 여부 API 호출
+    // ─────────────────────────────────────────────
 
-    // // ─────────────────────────────────────────────
-    // // 카테고리 선택 시, 해당 카테고리 문서 존재 여부 API 호출
-    // // ─────────────────────────────────────────────
-    // const handleCategoryChange = async (e) => {
-    //     const selectedId = e.target.value;
-    //     const foundCat = categories.find((cat) => cat.id === selectedId);
+    const [hasCategoryDocs, setHasCategoryDocs] = useState(true);
 
-    //     setSelectedCategory(foundCat || null);
-    //     setHasCategoryDocs(false);
+    const handleCategoryChange = async (e) => {
+        const selectedId = e.target.value;
+        const foundCat = categories.find((cat) => cat.id === selectedId);
 
-    //     if (!selectedId) {
-    //         return;
-    //     }
+        setSelectedCategory(foundCat || null);
+        setHasCategoryDocs(true);
 
-    //     try {
-    //         const hasDocs = await checkCategoryDocs(selectedId);
+        if (docType === "AGREEMENT" && selectedId) {
+            try {
+                const hasDocs = await checkCategoryDocs(selectedId);
 
-    //         setHasCategoryDocs(hasDocs);
-
-    //         if (!hasDocs) {
-    //             console.log("해당 카테고리에 등록된 문서가 없습니다.");
-    //         }
-    //     } catch (err) {
-    //         alert("카테고리 정보를 가져오는 데 실패했습니다.");
-    //     }
-    // };
+                if (!hasDocs) {
+                    console.warn("해당 카테고리에 등록된 문서가 없습니다.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("카테고리 문서 확인에 실패했습니다.");
+            }
+        }
+    };
 
     // ---------------------------------------------
     // 파일 배열에 추가 -> 곧바로 업로드(POST) 진행
@@ -247,7 +250,14 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                             카테고리 선택
                         </MenuItem>
                         {slicedCategory.map((cat) => (
-                            <MenuItem key={cat.id} value={cat.id}>
+                            <MenuItem
+                                key={cat.id}
+                                value={cat.id}
+                                onClick={handleCategoryChange}
+                                disabled={
+                                    docType === "AGREEMENT" && hasCategoryDocs
+                                }
+                            >
                                 {cat.name}
                             </MenuItem>
                         ))}
