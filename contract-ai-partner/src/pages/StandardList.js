@@ -11,6 +11,7 @@ import {
     fetchAllStandardDocs,
     fetchStandardsByCategory,
     fetchStandardsByName,
+    fetchStandardsByNameAndCategory,
     deleteStandardDoc
 } from "../api/standardsApi";
 import { mapStandardDocsForGrid } from "../utils/docUtils";
@@ -35,18 +36,33 @@ function StandardList() {
 
     // 검색 키워드 + 카테고리를 종합해서 한 번에 불러오는 함수
     const fetchDocuments = async () => {
-        if (searchValue.trim()) {
-            // 검색어가 있으면 이름으로 검색
-            const data = await fetchStandardsByName(searchValue);
+        // 검색어
+        const trimmedSearch = searchValue.trim();
+
+        // 만약 이름으로 검색 중이면
+        if (trimmedSearch) {
+            // 만약 카테고리도 지정되어 있다면 이름과 카테고리로 조회
+            if (selectedCategoryId && selectedCategoryId !== 0) {
+                const data = await fetchStandardsByNameAndCategory(
+                    trimmedSearch,
+                    selectedCategoryId
+                );
+
+                return mapStandardDocsForGrid(data);
+            }
+
+            // 그렇지 않으면 이름으로만 조회
+            const data = await fetchStandardsByName(trimmedSearch);
 
             return mapStandardDocsForGrid(data);
-        } else if (selectedCategoryId) {
-            // 카테고리가 있으면 해당 카테고리 문서 조회
+        }
+
+        if (selectedCategoryId && selectedCategoryId !== 0) {
             const data = await fetchStandardsByCategory(selectedCategoryId);
 
             return mapStandardDocsForGrid(data);
         }
-        // 둘 다 없으면 전체 문서 조회
+
         const data = await fetchAllStandardDocs();
 
         return mapStandardDocsForGrid(data);
@@ -63,8 +79,6 @@ function StandardList() {
         queryFn: fetchDocuments, // API 호출 함수
         // 5초마다 자동 리페치 (폴링)
         refetchInterval: (query) => {
-            console.log(query.state.data);
-
             if (!query.state.data) return false;
             // data에 IN_PROGRESS가 하나라도 있으면 5초
             const inProgress = query.state.data.some(
@@ -73,7 +87,7 @@ function StandardList() {
 
             if (inProgress) {
                 console.log("AI 분석 중 존재");
-                return 500;
+                return 5000;
             }
             return false; // 없으면 폴링 해제
         },
