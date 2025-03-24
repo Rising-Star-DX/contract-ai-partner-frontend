@@ -26,7 +26,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useCategory } from "../contexts/CategoryContext";
 
-import { uploadStandardDoc, requestAnalysis } from "../api/standardsApi";
+import {
+    uploadStandardDoc,
+    requestAnalysis,
+    cancelUploadedDoc
+} from "../api/standardsApi";
 import { checkCategoryDocs } from "../api/categoryApi";
 
 const FileUploadModal = ({ open, onClose, onUpload }) => {
@@ -90,7 +94,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
 
         setUploadingFiles((prev) => [...prev, ...newFileItems]);
 
-        const uploadPromises = newFileItems.map(async (item, index) => {
+        const uploadPromises = newFileItems.map(async (item) => {
             const extension = mime.extension(item.file.type);
 
             if (!extension) {
@@ -117,7 +121,9 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                     }
                 );
 
-                console.log(`docId: ${docId}`);
+                console.log(
+                    `docId: ${docId}, selectedCategory.id: ${selectedCategory.id}`
+                );
 
                 // 업로드가 완료되어 docId를 받으면, 그때 standardId를 기록
                 setUploadingFiles((prev) =>
@@ -167,9 +173,27 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     };
 
     // ---------------------------------------------
-    // 파일 개별 삭제 (이미 업로드했다면 서버에도 삭제 요청 필요할 수 있음)
+    // 파일 개별 삭제
     // ---------------------------------------------
-    const handleRemoveFile = (fileIndex) => {
+    const handleRemoveFile = async (fileIndex) => {
+        const target = uploadingFiles[fileIndex];
+
+        // standardId가 존재하면 서버에도 삭제 요청
+        if (target.standardId) {
+            try {
+                await cancelUploadedDoc(target.standardId);
+                console.log(`standardId ${target.standardId} 삭제 완료`);
+            } catch (err) {
+                console.warn(
+                    `파일 삭제 실패 (standardId: ${target.standardId})`,
+                    err
+                );
+                alert("파일 삭제에 실패했습니다.");
+                return; // 삭제 실패 시 UI 제거도 막고 싶다면 이 부분 유지
+            }
+        }
+
+        // UI에서 제거
         setUploadingFiles((prev) =>
             prev.filter((_, index) => index !== fileIndex)
         );
@@ -212,6 +236,34 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
         // 상태 초기화
         setUploadingFiles([]);
         setSelectedCategory(null);
+    };
+
+    // ---------------------------------------------
+    // "닫기" 버튼 -> s3 업로드 취소 API 호출 (cancelUploadedDoc)
+    // ---------------------------------------------
+    const handleCloseWithDelete = async () => {
+        const deletableIds = uploadingFiles
+            .filter((file) => file.standardId) // 업로드된 것만
+            .map((file) => file.standardId);
+
+        try {
+            await Promise.all(
+                deletableIds.map((id) =>
+                    cancelUploadedDoc(id).catch((err) => {
+                        console.warn(`파일 삭제 실패 (id: ${id})`, err);
+                    })
+                )
+            );
+        } catch (err) {
+            console.error("파일 삭제 중 오류:", err);
+        }
+
+        // UI 상태 초기화
+        setUploadingFiles([]);
+        setSelectedCategory(null);
+
+        // 모달 닫기
+        onClose();
     };
 
     return (
@@ -344,7 +396,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
 
                 {/* 닫기 버튼 -> 업로드 중에는 비활성 */}
                 <Button
-                    onClick={onClose}
+                    onClick={handleCloseWithDelete}
                     startIcon={<CancelIcon />}
                     disabled={uploadingFiles.some(
                         (f) => f.progress > 0 && f.progress < 100
