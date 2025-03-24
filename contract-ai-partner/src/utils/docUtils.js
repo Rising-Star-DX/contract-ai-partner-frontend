@@ -44,14 +44,13 @@ export const getStatusLabel = (status) => {
 };
 
 // API 데이터를 DataGrid 형식으로 변환
-export const mapStandardDocsForGrid = (data) => (
-        data &&
-        data.map((doc) => ({
-            id: doc.id,
-            name: doc.name,
-            category: doc.categoryName,
-            iconType: doc.type,
-            status: getStatusLabel(doc.status),
-            uploadDate: doc.createdAt
-        }))
-    );
+export const mapDocsForGrid = (data) =>
+    data &&
+    data.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        category: doc.categoryName,
+        iconType: doc.type,
+        status: getStatusLabel(doc.status),
+        uploadDate: doc.createdAt
+    }));
