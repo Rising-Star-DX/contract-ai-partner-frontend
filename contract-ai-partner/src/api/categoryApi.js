@@ -21,16 +21,9 @@ export const getCategories = async () => {
 
 export const checkCategoryDocs = async (categoryId) => {
     try {
-        const response = await apiClient.fetch(`/categories/${categoryId}`);
+        const response = await apiClient.get(`/categories/${categoryId}`);
 
-        if (!response.ok) {
-            throw new Error("카테고리 조회 실패");
-        }
-        const data = await response.json();
-
-        console.log(data);
-
-        return data?.data.result;
+        return response.data?.data.result;
     } catch (error) {
         console.error("카테고리 문서 조회 중 오류:", error);
         throw error;
