@@ -16,98 +16,140 @@ import {
     ListItemText,
     IconButton
 } from "@mui/material";
+
+import { useNavigate } from "react-router-dom";
+import mime from "mime-types";
+
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import mime from "mime-types";
+import { useCategory } from "../contexts/CategoryContext";
+import { uploadStandardDoc, requestAnalysis } from "../api/standardsApi";
 
-import { useCategory } from "../contexts/CategoryContext"; // Context에서 카테고리 가져오기
-import {
-    initStandardDoc,
-    uploadStandardFile,
-    requestAnalysis
-} from "../api/standardsApi";
+// import { checkCategoryDocs } from "../api/categoryApi";
 
 const FileUploadModal = ({ open, onClose, onUpload }) => {
     const { categories, loading, error } = useCategory();
-    const [selectedCategory, setSelectedCategory] = useState(null); // ✅ 기본값을 빈 오브젝트로 설정
-    const [uploadingFiles, setUploadingFiles] = useState([]); // ✅ 업로드 중인 파일 상태
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [uploadingFiles, setUploadingFiles] = useState([]);
+
+    const navigate = useNavigate();
+
+    // 전체 카테고리 삭제
+    const slicedCategory = categories.slice(1);
+
+    // // 카테고리에 기준 문서 존재 여부
+    // const setHasCategoryDocs = useState(false);
+
+    // // ─────────────────────────────────────────────
+    // // 카테고리 선택 시, 해당 카테고리 문서 존재 여부 API 호출
+    // // ─────────────────────────────────────────────
+    // const handleCategoryChange = async (e) => {
+    //     const selectedId = e.target.value;
+    //     const foundCat = categories.find((cat) => cat.id === selectedId);
+
+    //     setSelectedCategory(foundCat || null);
+    //     setHasCategoryDocs(false);
+
+    //     if (!selectedId) {
+    //         return;
+    //     }
+
+    //     try {
+    //         const hasDocs = await checkCategoryDocs(selectedId);
+
+    //         setHasCategoryDocs(hasDocs);
+
+    //         if (!hasDocs) {
+    //             console.log("해당 카테고리에 등록된 문서가 없습니다.");
+    //         }
+    //     } catch (err) {
+    //         alert("카테고리 정보를 가져오는 데 실패했습니다.");
+    //     }
+    // };
 
     // ---------------------------------------------
-    // 파일을 배열에 추가하면서 "지원하지 않는 형식" 체크
+    // 파일 배열에 추가 -> 곧바로 업로드(POST) 진행
     // ---------------------------------------------
-    const addFilesToQueue = async (files) => {
+    const addFilesAndUpload = async (files) => {
         if (!selectedCategory) {
             alert("카테고리를 먼저 선택해주세요.");
             return;
         }
 
-        const initPromises = [];
+        const newFileItems = files.map((file) => ({
+            file,
+            fileKey: `${file.name}-${Date.now()}`,
+            standardId: null,
+            progress: 0
+        }));
 
-        for (let i = 0; i < files.length; i += 1) {
-            const file = files[i];
-            const extension = mime.extension(file.type);
+        setUploadingFiles((prev) => [...prev, ...newFileItems]);
+
+        const uploadPromises = newFileItems.map(async (item, index) => {
+            const extension = mime.extension(item.file.type);
 
             if (!extension) {
-                alert(`지원하지 않는 파일 형식입니다: ${file.name}`);
-                continue;
+                alert(`지원하지 않는 파일 형식입니다: ${item.file.name}`);
+                return null;
             }
-
-            const docBody = {
-                name: file.name,
-                type: extension.toUpperCase(),
-                categoryId: selectedCategory.id
-            };
-
-            console.log(file, docBody);
-
-            // Init API 호출 (Promise 배열에 저장 -> 동시에 처리)
-            const initPromise = initStandardDoc(docBody).then((res) => ({
-                file,
-                standardId: res.id, // 백엔드에서 생성된 문서 ID
-                progress: 0
-            }));
-
-            initPromises.push(initPromise);
-        }
-
-        // 모든 Init 병렬 처리
-        if (initPromises.length > 0) {
             try {
-                const results = await Promise.all(initPromises);
+                // 업로드 API 호출
+                const docId = await uploadStandardDoc(
+                    selectedCategory.id,
+                    item.file,
+                    (progressEvent) => {
+                        const progress = Math.round(
+                            (progressEvent.loaded * 100) / progressEvent.total
+                        );
 
-                // 기존 업로드 목록에 추가
-                setUploadingFiles((prev) => [...prev, ...results]);
+                        setUploadingFiles((prev) =>
+                            prev.map((f) =>
+                                f.fileKey === item.fileKey
+                                    ? { ...f, progress }
+                                    : f
+                            )
+                        );
+                    }
+                );
+
+                console.log(`docId: ${docId}`);
+
+                // 업로드가 완료되어 docId를 받으면, 그때 standardId를 기록
+                setUploadingFiles((prev) =>
+                    prev.map((f) =>
+                        f.fileKey === item.fileKey
+                            ? { ...f, standardId: docId }
+                            : f
+                    )
+                );
+
+                return docId;
             } catch (err) {
-                console.error("기준 문서 업로드 init 실패:", err);
-                alert("Init 과정에서 오류가 발생했습니다.");
+                console.error("파일 업로드 중 오류:", err);
+                alert("파일 업로드 과정에서 오류가 발생했습니다.");
+                return null;
             }
-        }
+        });
+
+        await Promise.all(uploadPromises);
     };
 
     // ---------------------------------------------
-    // 파일 선택
+    // 파일 선택 또는 드래그 앤 드롭
     // ---------------------------------------------
     const handleFileChange = async (event) => {
         const input = event.target;
         const files = Array.from(input.files);
 
-        // 다시 같은 파일을 선택할 수 있게 초기화
-        input.value = "";
+        input.value = ""; // 동일 파일 재선택 시에도 이벤트 발생하도록 초기화
 
-        if (files.length === 0) {
-            console.warn("⚠ 선택한 파일이 없습니다.");
-            return;
+        if (files.length > 0) {
+            await addFilesAndUpload(files);
         }
-
-        // 파일 배열에 추가 + 지원하지 않는 형식 검사
-        await addFilesToQueue(files);
     };
 
-    // ---------------------------------------------
-    // 드래그 앤 드롭
-    // ---------------------------------------------
     const handleDragOver = (event) => {
         event.preventDefault();
     };
@@ -116,16 +158,13 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
         event.preventDefault();
         const files = Array.from(event.dataTransfer.files);
 
-        if (files.length === 0) {
-            console.warn("⚠ 드래그 앤 드롭한 파일이 없습니다.");
-            return;
+        if (files.length > 0) {
+            await addFilesAndUpload(files);
         }
-
-        await addFilesToQueue(files);
     };
 
     // ---------------------------------------------
-    // 파일 개별 삭제
+    // 파일 개별 삭제 (이미 업로드했다면 서버에도 삭제 요청 필요할 수 있음)
     // ---------------------------------------------
     const handleRemoveFile = (fileIndex) => {
         setUploadingFiles((prev) =>
@@ -134,83 +173,48 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     };
 
     // ---------------------------------------------
-    // "추가" 버튼 클릭 -> 이미 Init 완료된 문서에
-    //  실제 파일(PATCH) 업로드
+    // "추가" 버튼 -> AI 분석 API 호출 (requestAnalysis)
     // ---------------------------------------------
-    const handleUploadAll = async () => {
+    const handleAnalysis = async () => {
         if (uploadingFiles.length === 0) {
-            alert("업로드할 파일이 없습니다.");
+            alert("분석할 파일이 없습니다.");
             return;
         }
 
-        try {
-            // PATCH 병렬 호출
-            const patchPromises = uploadingFiles.map((item, idx) =>
-                uploadStandardFile(
-                    item.standardId,
-                    item.file,
-                    (progressEvent) => {
-                        const progress = Math.round(
-                            (progressEvent.loaded * 100) / progressEvent.total
-                        );
+        // 비동기로 AI 분석 요청 (결과를 기다리지 않음: Fire and Forget)
+        uploadingFiles.forEach((item) => {
+            console.log(item);
 
-                        setUploadingFiles((prev) =>
-                            prev.map((f, fIdx) => {
-                                if (fIdx === idx) {
-                                    return { ...f, progress };
-                                }
-                                return f;
-                            })
-                        );
-                    }
+            requestAnalysis(item.standardId)
+                .then(() =>
+                    console.log(`AI 분석 완료. standardId: ${item.standardId}`)
                 )
-            );
+                .catch((err) => console.error("AI 분석 요청 중 오류:", err));
+        });
 
-            await Promise.all(patchPromises);
-
-            // (2) AI 분석 요청 -> 기다리지 않고 비동기로 "던져두기"
-            uploadingFiles.forEach((item) => {
-                // 에러만 로그 찍고, 성공 여부는 굳이 대기하지 않음
-                requestAnalysis(item.standardId).catch((err) => {
-                    console.error(
-                        `AI 분석 요청(${item.standardId}) 중 오류:`,
-                        err
-                    );
-                });
-            });
-
-            // 업로드 완료 후 처리
-            if (uploadingFiles.length === 1) {
-                // 파일이 1개면 상세화면 이동 등
-                console.log("단일 파일 업로드 완료 -> 상세화면 이동 로직");
-                // navigate(`/standards/detail/${uploadingFiles[0].standardId}`);
-            } else {
-                // 여러 개면 모달 닫기
-                onClose();
-            }
-
-            // 업로드 완료한 파일 정보 전달
-            if (onUpload) {
-                onUpload(
-                    uploadingFiles.map((f) => f.file),
-                    selectedCategory
-                );
-            }
-
-            // 초기화
-            setUploadingFiles([]);
-            setSelectedCategory(null);
-        } catch (err) {
-            console.error("업로드 중 오류 발생:", err);
-            alert("업로드 중 오류가 발생했습니다.");
+        // 파일 수에 따라 바로 페이지 이동 또는 모달 닫기
+        if (uploadingFiles.length === 1) {
+            navigate(`/standards/${uploadingFiles[0].standardId}`);
+        } else {
+            onClose();
         }
+
+        if (onUpload) {
+            onUpload(
+                uploadingFiles.map((f) => f.file),
+                selectedCategory
+            );
+        }
+
+        // 상태 초기화
+        setUploadingFiles([]);
+        setSelectedCategory(null);
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle>파일 업로드</DialogTitle>
             <DialogContent>
-                {/* 카테고리 로딩 및 에러 상태 */}
                 {loading && (
                     <Box
                         display="flex"
@@ -229,7 +233,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                         value={selectedCategory?.id || ""}
                         onChange={(e) => {
                             const selectedId = e.target.value;
-                            const foundCat = categories.find(
+                            const foundCat = slicedCategory.find(
                                 (cat) => cat.id === selectedId
                             );
 
@@ -242,7 +246,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                         <MenuItem value="" disabled>
                             카테고리 선택
                         </MenuItem>
-                        {categories.map((cat) => (
+                        {slicedCategory.map((cat) => (
                             <MenuItem key={cat.id} value={cat.id}>
                                 {cat.name}
                             </MenuItem>
@@ -290,7 +294,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                     <List>
                         {uploadingFiles.map((item, index) => (
                             <ListItem
-                                key={index}
+                                key={`${item.file.name}-${index}`}
                                 secondaryAction={
                                     <IconButton
                                         edge="end"
@@ -303,7 +307,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                                         <DeleteIcon />
                                     </IconButton>
                                 }
-                                sx={{ bgcolor: "#EAECEE" }}
+                                sx={{ bgcolor: "#EAECEE", mb: 1 }}
                             >
                                 <ListItemText primary={item.file.name} />
                                 <LinearProgress
@@ -318,9 +322,9 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
             </DialogContent>
 
             <DialogActions>
-                {/* "추가" 버튼 -> 실제 업로드 로직 */}
+                {/* "추가" 버튼 -> AI 분석 로직 */}
                 <Button
-                    onClick={handleUploadAll}
+                    onClick={handleAnalysis}
                     color="primary"
                     variant="contained"
                     disabled={uploadingFiles.length === 0 || !selectedCategory}
@@ -328,12 +332,12 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                     추가
                 </Button>
 
-                {/* 닫기 버튼 -> 업로드 중일 때는 비활성 */}
+                {/* 닫기 버튼 -> 업로드 중에는 비활성 */}
                 <Button
                     onClick={onClose}
                     startIcon={<CancelIcon />}
                     disabled={uploadingFiles.some(
-                        (file) => file.progress > 0 && file.progress < 100
+                        (f) => f.progress > 0 && f.progress < 100
                     )}
                 >
                     닫기
