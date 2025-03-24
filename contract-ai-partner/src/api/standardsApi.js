@@ -23,7 +23,7 @@ export const uploadStandardDoc = async (categoryId, file, onUploadProgress) => {
             }
         );
 
-        console.log(response.data.data.id);
+        console.log("계약서 업로드 완료", response.data.data.id);
 
         return response.data.data.id; // 문서에 대한 id 반환
     } catch (error) {

@@ -11,12 +11,15 @@ import FileUploadModal from "../components/FileUploadModal";
 import DOC_COLUMNS from "../constants/docColumns";
 
 import {
+    uploadContractDoc,
+    requestContractAnalysis,
     fetchAllContractDocs,
     fetchContractsByCategory,
     fetchContractsByName,
     fetchContractsByNameAndCategory,
-    deleteContractDoc
-} from "../api/contractsApi"; // 새로운 API 함수들
+    deleteContractDoc,
+    cancelUploadedContract
+} from "../api/contractsApi"; // 계약 문서 API 함수들
 import { mapDocsForGrid } from "../utils/docUtils"; // 전처리 함수
 
 function ContractList() {
@@ -135,6 +138,9 @@ function ContractList() {
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onUpload={handleUpload}
+                uploadApi={uploadContractDoc}
+                onRequestAnalysis={requestContractAnalysis}
+                onDeleteFile={cancelUploadedContract}
             />
         </>
     );

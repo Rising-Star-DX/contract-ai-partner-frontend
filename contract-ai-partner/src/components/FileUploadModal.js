@@ -14,7 +14,8 @@ import {
     List,
     ListItem,
     ListItemText,
-    IconButton
+    IconButton,
+    Alert
 } from "@mui/material";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,18 +26,20 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useCategory } from "../contexts/CategoryContext";
-
-import {
-    uploadStandardDoc,
-    requestAnalysis,
-    cancelUploadedDoc
-} from "../api/standardsApi";
 import { checkCategoryDocs } from "../api/categoryApi";
 
-const FileUploadModal = ({ open, onClose, onUpload }) => {
+const FileUploadModal = ({
+    open,
+    onClose,
+    onUpload,
+    uploadApi,
+    onRequestAnalysis,
+    onDeleteFile
+}) => {
     const { categories, loading, error } = useCategory();
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [uploadingFiles, setUploadingFiles] = useState([]);
+    const [alertInfo, setAlertInfo] = useState(null); // MUI Alert 메시지 상태
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -52,7 +55,6 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     // ─────────────────────────────────────────────
     // 카테고리 선택 시, 해당 카테고리 문서 존재 여부 API 호출
     // ─────────────────────────────────────────────
-
     const [hasCategoryDocs, setHasCategoryDocs] = useState(true);
 
     const handleCategoryChange = async (e) => {
@@ -71,7 +73,10 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                 }
             } catch (err) {
                 console.error(err);
-                alert("카테고리 문서 확인에 실패했습니다.");
+                setAlertInfo({
+                    severity: "error",
+                    message: "카테고리 문서 확인에 실패했습니다."
+                });
             }
         }
     };
@@ -81,14 +86,17 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     // ---------------------------------------------
     const addFilesAndUpload = async (files) => {
         if (!selectedCategory) {
-            alert("카테고리를 먼저 선택해주세요.");
+            setAlertInfo({
+                severity: "error",
+                message: "카테고리를 먼저 선택해주세요."
+            });
             return;
         }
 
         const newFileItems = files.map((file) => ({
             file,
             fileKey: `${file.name}-${Date.now()}`,
-            standardId: null,
+            docId: null,
             progress: 0
         }));
 
@@ -98,12 +106,15 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
             const extension = mime.extension(item.file.type);
 
             if (!extension) {
-                alert(`지원하지 않는 파일 형식입니다: ${item.file.name}`);
+                setAlertInfo({
+                    severity: "error",
+                    message: `지원하지 않는 파일 형식입니다: ${item.file.name}`
+                });
                 return null;
             }
             try {
                 // 업로드 API 호출
-                const docId = await uploadStandardDoc(
+                const docId = await uploadApi(
                     selectedCategory.id,
                     item.file,
                     (progressEvent) => {
@@ -128,16 +139,17 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                 // 업로드가 완료되어 docId를 받으면, 그때 standardId를 기록
                 setUploadingFiles((prev) =>
                     prev.map((f) =>
-                        f.fileKey === item.fileKey
-                            ? { ...f, standardId: docId }
-                            : f
+                        f.fileKey === item.fileKey ? { ...f, docId } : f
                     )
                 );
 
                 return docId;
             } catch (err) {
                 console.error("파일 업로드 중 오류:", err);
-                alert("파일 업로드 과정에서 오류가 발생했습니다.");
+                setAlertInfo({
+                    severity: "error",
+                    message: "파일 업로드 과정에서 오류가 발생했습니다."
+                });
                 return null;
             }
         });
@@ -181,15 +193,15 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
         // standardId가 존재하면 서버에도 삭제 요청
         if (target.standardId) {
             try {
-                await cancelUploadedDoc(target.standardId);
-                console.log(`standardId ${target.standardId} 삭제 완료`);
+                await onDeleteFile(target.standardId);
+                console.log(`onDeleteFile ${target.standardId} 삭제 완료`);
             } catch (err) {
-                console.warn(
-                    `파일 삭제 실패 (standardId: ${target.standardId})`,
-                    err
-                );
-                alert("파일 삭제에 실패했습니다.");
-                return; // 삭제 실패 시 UI 제거도 막고 싶다면 이 부분 유지
+                console.warn(`파일 삭제 실패 (ID: ${target.standardId})`, err);
+                setAlertInfo({
+                    severity: "error",
+                    message: "파일 삭제에 실패했습니다."
+                });
+                return;
             }
         }
 
@@ -204,7 +216,10 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     // ---------------------------------------------
     const handleAnalysis = async () => {
         if (uploadingFiles.length === 0) {
-            alert("분석할 파일이 없습니다.");
+            setAlertInfo({
+                severity: "error",
+                message: "분석할 파일이 없습니다."
+            });
             return;
         }
 
@@ -212,16 +227,22 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
         uploadingFiles.forEach((item) => {
             console.log(item);
 
-            requestAnalysis(item.standardId)
+            onRequestAnalysis(item.docId)
                 .then(() =>
-                    console.log(`AI 분석 완료. standardId: ${item.standardId}`)
+                    console.log(`AI 분석 완료. standardId: ${item.docId}`)
                 )
-                .catch((err) => console.error("AI 분석 요청 중 오류:", err));
+                .catch((err) => {
+                    console.error("AI 분석 요청 중 오류:", err);
+                    setAlertInfo({
+                        severity: "error",
+                        message: "AI 분석 요청 중 오류가 발생했습니다."
+                    });
+                });
         });
 
         // 파일 수에 따라 바로 페이지 이동 또는 모달 닫기
         if (uploadingFiles.length === 1) {
-            navigate(`/standards/${uploadingFiles[0].standardId}`);
+            navigate(`/standards/${uploadingFiles[0].docId}`);
         } else {
             onClose();
         }
@@ -243,13 +264,13 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
     // ---------------------------------------------
     const handleCloseWithDelete = async () => {
         const deletableIds = uploadingFiles
-            .filter((file) => file.standardId) // 업로드된 것만
-            .map((file) => file.standardId);
+            .filter((file) => file.docId) // 업로드된 것만
+            .map((file) => file.docId);
 
         try {
             await Promise.all(
                 deletableIds.map((id) =>
-                    cancelUploadedDoc(id).catch((err) => {
+                    onDeleteFile(id).catch((err) => {
                         console.warn(`파일 삭제 실패 (id: ${id})`, err);
                     })
                 )
@@ -293,6 +314,7 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                             );
 
                             setSelectedCategory(foundCat || null);
+                            handleCategoryChange(e);
                         }}
                         fullWidth
                         displayEmpty
@@ -305,9 +327,8 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                             <MenuItem
                                 key={cat.id}
                                 value={cat.id}
-                                onClick={handleCategoryChange}
                                 disabled={
-                                    docType === "AGREEMENT" && hasCategoryDocs
+                                    docType === "AGREEMENT" && !hasCategoryDocs
                                 }
                             >
                                 {cat.name}
@@ -350,6 +371,17 @@ const FileUploadModal = ({ open, onClose, onUpload }) => {
                         </Typography>
                     </label>
                 </Box>
+
+                {/* MUI Alert를 통한 에러 메시지 출력 */}
+                {alertInfo && (
+                    <Alert
+                        severity={alertInfo.severity}
+                        onClose={() => setAlertInfo(null)}
+                        sx={{ mb: 2 }}
+                    >
+                        {alertInfo.message}
+                    </Alert>
+                )}
 
                 {/* 업로드 목록 & 진행률 표시 */}
                 {uploadingFiles.length > 0 && (

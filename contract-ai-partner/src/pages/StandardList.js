@@ -8,11 +8,14 @@ import DocumentListPage from "../components/DocumentListPage";
 import DOC_COLUMNS from "../constants/docColumns";
 import { useCategory } from "../contexts/CategoryContext";
 import {
+    uploadStandardDoc,
+    requestAnalysis,
     fetchAllStandardDocs,
     fetchStandardsByCategory,
     fetchStandardsByName,
     fetchStandardsByNameAndCategory,
-    deleteStandardDoc
+    deleteStandardDoc,
+    cancelUploadedDoc
 } from "../api/standardsApi";
 import { mapDocsForGrid } from "../utils/docUtils";
 
@@ -168,6 +171,9 @@ function StandardList() {
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onUpload={handleUpload}
+                uploadApi={uploadStandardDoc}
+                onRequestAnalysis={requestAnalysis}
+                onDeleteFile={cancelUploadedDoc}
             />
         </>
     );

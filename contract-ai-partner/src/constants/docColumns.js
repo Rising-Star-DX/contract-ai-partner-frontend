@@ -2,12 +2,10 @@
 import React from "react";
 import { Box, Button, IconButton, Chip } from "@mui/material";
 import RemoveCircleOutlineOutlinedIcon from "@mui/icons-material/RemoveCircleOutlineOutlined";
-import PsychologyIcon from "@mui/icons-material/Psychology"; // AI 분석 관련 아이콘
 import { getDocIcon } from "../utils/docUtils";
 
 // 상태에 따른 Chip을 반환하는 함수
 const getStatusChip = (status) => {
-    const icon = <PsychologyIcon fontSize="small" />;
     let color = "default";
 
     if (status.includes("완료")) {
@@ -18,7 +16,9 @@ const getStatusChip = (status) => {
         color = "warning";
     }
 
-    return <Chip icon={icon} label={status} color={color} sx={{ pl: 1 }} />;
+    return (
+        <Chip label={status} color={color} sx={{ pl: 1, fontWeight: "bold" }} />
+    );
 };
 
 const DOC_COLUMNS = (onRowView, onRowDelete) => [
