@@ -14,7 +14,7 @@ import {
     fetchStandardsByNameAndCategory,
     deleteStandardDoc
 } from "../api/standardsApi";
-import { mapStandardDocsForGrid } from "../utils/docUtils";
+import { mapDocsForGrid } from "../utils/docUtils";
 
 import FileUploadModal from "../components/FileUploadModal";
 
@@ -48,24 +48,24 @@ function StandardList() {
                     selectedCategoryId
                 );
 
-                return mapStandardDocsForGrid(data);
+                return mapDocsForGrid(data);
             }
 
             // 그렇지 않으면 이름으로만 조회
             const data = await fetchStandardsByName(trimmedSearch);
 
-            return mapStandardDocsForGrid(data);
+            return mapDocsForGrid(data);
         }
 
         if (selectedCategoryId && selectedCategoryId !== 0) {
             const data = await fetchStandardsByCategory(selectedCategoryId);
 
-            return mapStandardDocsForGrid(data);
+            return mapDocsForGrid(data);
         }
 
         const data = await fetchAllStandardDocs();
 
-        return mapStandardDocsForGrid(data);
+        return mapDocsForGrid(data);
     };
 
     // useQuery 훅 - React Query

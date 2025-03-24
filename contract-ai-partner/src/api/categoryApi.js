@@ -36,5 +36,3 @@ export const checkCategoryDocs = async (categoryId) => {
         throw error;
     }
 };
-
-export const a = 1;
