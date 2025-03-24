@@ -7,39 +7,15 @@ const apiClient = axios.create({
     }
 });
 
-// 기준 문서 업로드 init
-export const initStandardDoc = async (docBody) => {
-    // docBody 예시: { name: "~~~에 대한 기준 문서.pdf", type: "PDF", categoryId: 123 }
+export const uploadStandardDoc = async (categoryId, file, onUploadProgress) => {
     try {
-        const response = await apiClient.post(
-            "/standards/upload/init",
-            docBody
-        );
-
-        console.log(response.data.data);
-
-        return response.data.data; // { id: ..., ... } 등의 응답이 온다고 가정
-    } catch (error) {
-        console.error("기준 문서 업로드 init 실패:", error);
-        throw error;
-    }
-};
-
-// s3 파일 업로드 (/standards/upload/{id})
-// onUploadProgress 콜백을 통해 업로드 진행률을 UI로 반영
-export const uploadStandardFile = async (
-    standardId,
-    file,
-    onUploadProgress
-) => {
-    try {
-        // Multipart 전송
+        // 예: /standards/upload/123
         const formData = new FormData();
 
         formData.append("file", file);
 
-        const response = await apiClient.patch(
-            `/standards/upload/${standardId}`,
+        const response = await apiClient.post(
+            `/standards/upload/${categoryId}`,
             formData,
             {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -47,16 +23,22 @@ export const uploadStandardFile = async (
             }
         );
 
-        return response.data;
+        console.log(response.data.data.id);
+
+        return response.data.data.id; // 문서에 대한 id 반환
     } catch (error) {
-        console.error(`기준 문서 업로드(${standardId}) 실패:`, error);
+        console.error(
+            `기준 문서 s3 업로드(${categoryId}) 실패:`,
+            error.code,
+            error.message
+        );
         throw error;
     }
 };
 
 export const requestAnalysis = async (standardId) => {
     console.log(
-        `${process.env.REACT_APP_API_BASE_URL}//standards/analysis/${standardId}`
+        `${process.env.REACT_APP_API_BASE_URL}/standards/analysis/${standardId}`
     );
 
     try {
