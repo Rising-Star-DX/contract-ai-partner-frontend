@@ -54,3 +54,14 @@ export const mapDocsForGrid = (data) =>
         status: getStatusLabel(doc.status),
         uploadDate: doc.createdAt
     }));
+
+// s3 URL을 실제 브라우저 접근 가능한 URL로 변환하는 함수
+export const convertS3UrlToHttps = (s3Url) => {
+    if (!s3Url.startsWith("s3://")) return s3Url;
+
+    const urlWithoutProtocol = s3Url.replace("s3://", "");
+    const bucketName = urlWithoutProtocol.split("/")[0];
+    const objectPath = urlWithoutProtocol.split("/").slice(1).join("/");
+
+    return `http://${bucketName}.s3.ap-northeast-2.amazonaws.com/${objectPath}`;
+};

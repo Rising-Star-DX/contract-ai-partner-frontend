@@ -1,4 +1,3 @@
-// src/components/ReviewTab.jsx
 import React, { useState } from "react";
 import { Typography, Menu, MenuItem, Grid2 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -25,7 +24,7 @@ function ReviewTab() {
             sx={{
                 width: "100%",
                 height: 48,
-                backgroundColor: "#FFFFFF",
+                backgroundColor: "#FFFFFF"
             }}
         >
             {/* (1) 왼쪽 영역: "원본" / "수동 문구" */}
@@ -37,14 +36,14 @@ function ReviewTab() {
                 onClick={handleOpenLeftMenu}
                 sx={{
                     cursor: "pointer",
-                    textAlign: "center",
+                    textAlign: "center"
                 }}
             >
                 <Typography
-                    variant="h7"
+                    variant="h6"
                     sx={{
                         fontWeight: "bold",
-                        color: "#333",
+                        color: "#333"
                     }}
                 >
                     {selectedLeft}
@@ -72,10 +71,10 @@ function ReviewTab() {
                 sx={{ textAlign: "center" }}
             >
                 <Typography
-                    variant="h7"
+                    variant="h6"
                     sx={{
                         fontWeight: "bold",
-                        color: "#1A73E8",
+                        color: "#1A73E8"
                     }}
                 >
                     검토 결과
@@ -87,6 +86,14 @@ function ReviewTab() {
                 anchorEl={anchorElLeft}
                 open={Boolean(anchorElLeft)}
                 onClose={handleCloseLeftMenu}
+                anchorOrigin={{
+                    vertical: "bottom", // 메뉴가 앵커의 아래쪽에서 시작
+                    horizontal: "center" // 가로 중앙 정렬
+                }}
+                transformOrigin={{
+                    vertical: "top", // 메뉴의 위쪽이 앵커의 아래쪽에 붙음
+                    horizontal: "center" // 가로 중앙 정렬
+                }}
             >
                 <MenuItem
                     selected={selectedLeft === "원본"}
