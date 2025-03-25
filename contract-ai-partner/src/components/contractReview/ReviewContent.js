@@ -1,30 +1,112 @@
-// src/components/contractReview/ReviewContent.jsx
-import React from "react";
+import React, { useState } from "react";
 import { Paper, Typography, Box, Grid2, Button } from "@mui/material";
+import { pdfjs, Page, Document } from "react-pdf";
+import "react-pdf/dist/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 
-function ReviewContent() {
+import { convertS3UrlToHttps } from "../../utils/docUtils";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+).toString();
+
+function ReviewContent({ agreementData }) {
+    const [numPages, setNumPages] = useState(null);
+
+    const onDocumentLoadSuccess = ({ nPages }) => {
+        setNumPages(nPages);
+    };
+
     return (
-        <Grid2 container spacing={2} sx={{ p: 2, flexGrow: 1 }}>
+        <Grid2
+            container
+            spacing={4}
+            sx={{ flexGrow: 1, height: "80vh", pt: 4 }}
+        >
             {/* 왼쪽: 원본 */}
-            <Grid2 item xs={12} md={6}>
-                <Paper sx={{ height: "70vh", p: 2, overflow: "auto" }}>
-                    <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-                        원본 문서
-                    </Typography>
-                    <Box sx={{ whiteSpace: "pre-wrap" }}>
-                        {/* 실제 계약서 원본 텍스트 or 뷰어 */}
-                        Lorem ipsum dolor sit amet, consectetur adipiscing
-                        elit...
-                    </Box>
+            <Grid2
+                sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%"
+                }}
+            >
+                <Paper
+                    id="pdf-container"
+                    sx={{
+                        flex: 1,
+                        mb: 4,
+                        overflow: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center"
+                    }}
+                >
+                    <Document
+                        file={convertS3UrlToHttps(agreementData.url)}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                    >
+                        {Array.from(new Array(numPages), (el, index) => (
+                            <Box
+                                key={`page_${index + 1}`}
+                                sx={{
+                                    width: "100%",
+                                    mb: 2,
+                                    "& canvas": {
+                                        width: "100% !important",
+                                        height: "auto !important"
+                                    }
+                                }}
+                            >
+                                <Page
+                                    pageNumber={index + 1}
+                                    width={
+                                        document.getElementById("pdf-container")
+                                            ?.clientWidth || undefined
+                                    }
+                                />
+                            </Box>
+                        ))}
+                    </Document>
                 </Paper>
-                <Button variant="contained" color="primary">
-                    수동 문구 추출
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    sx={{
+                        mb: 10,
+                        bgcolor: "#FFFFFF",
+                        fontWeight: "bold",
+                        fontSize: "18px",
+                        color: "#17202A"
+                    }}
+                >
+                    수동 문구 추가
                 </Button>
             </Grid2>
 
             {/* 오른쪽: 검토 결과 */}
-            <Grid2 item xs={12} md={6}>
-                <Paper sx={{ height: "70vh", p: 2, overflow: "auto" }}>
+            <Grid2
+                sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%"
+                }}
+            >
+                <Paper
+                    sx={{
+                        flex: 1,
+                        p: 2,
+                        mb: 4,
+                        overflow: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center"
+                    }}
+                >
                     <Typography variant="subtitle1" fontWeight="bold" mb={1}>
                         검토 결과
                     </Typography>
@@ -33,7 +115,16 @@ function ReviewContent() {
                         [주의] 1조 계약 내용에 누락 사항이 발견되었습니다...
                     </Box>
                 </Paper>
-                <Button variant="contained" color="secondary">
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{
+                        mb: 10,
+                        fontWeight: "bold",
+                        fontSize: "18px"
+                    }}
+                >
                     AI 분석 보고서 확인
                 </Button>
             </Grid2>
