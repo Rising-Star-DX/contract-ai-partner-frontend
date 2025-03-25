@@ -113,6 +113,18 @@ export const fetchContractsByNameAndCategory = async (name, categoryId) => {
     }
 };
 
+// 단일 계약 문서 조회
+export const fetchAgreementDetail = async (id) => {
+    try {
+        const response = await apiClient.get(`/agreements/${id}`);
+
+        return response.data.data;
+    } catch (error) {
+        console.error("API 호출 중 에러:", error, error.message);
+        throw error;
+    }
+};
+
 // 계약 문서 삭제
 export const deleteContractDoc = async (id) => {
     try {
