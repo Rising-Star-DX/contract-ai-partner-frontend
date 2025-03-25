@@ -20,8 +20,15 @@ const ReviewCard = ({
     suggestion
 }) => (
     <Accordion
-        elevation={3}
-        sx={{ borderRadius: "8px", overflow: "hidden", mb: 2, px: 6 }}
+        elevation={2}
+        sx={{
+            borderRadius: "8px",
+            mb: 3,
+            px: 6,
+            "&.Mui-expanded": {
+                margin: "0 0 24px 0"
+            }
+        }}
     >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h6" sx={{ fontFamily: "NanumSquareNeoHeavy" }}>
@@ -36,7 +43,7 @@ const ReviewCard = ({
                     color="text.secondary"
                     sx={{ fontFamily: "NanumSquareNeoExtraBold" }}
                 >
-                    원문{" "}
+                    📍 원문{" "}
                     <Chip
                         label={`${page} 페이지`}
                         size="small"
@@ -45,7 +52,7 @@ const ReviewCard = ({
                     />
                 </Typography>
                 <Typography
-                    variant="body2"
+                    variant="body1"
                     color="text.secondary"
                     sx={{ whiteSpace: "pre-wrap", mt: 3 }}
                 >
@@ -59,7 +66,7 @@ const ReviewCard = ({
                     color="primary"
                     sx={{ fontFamily: "NanumSquareNeoHeavy" }}
                 >
-                    검토 의견{" "}
+                    🔍 검토 의견{" "}
                     <Typography
                         component="span"
                         color="text.secondary"
@@ -86,7 +93,7 @@ const ReviewCard = ({
                     sx={{ fontFamily: "NanumSquareNeoHeavy" }}
                     mb={4}
                 >
-                    제안 문구
+                    ✅ 제안 문구
                 </Typography>
                 <Typography
                     variant="body2"

@@ -42,7 +42,7 @@ function ReviewContent({ agreementData }) {
                         overflow: "auto",
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "center"
+                        alignItems: "stretch"
                     }}
                 >
                     <Document
@@ -80,8 +80,7 @@ function ReviewContent({ agreementData }) {
                         mb: 10,
                         bgcolor: "#FFFFFF",
                         fontWeight: "bold",
-                        fontSize: "18px",
-                        color: "#17202A"
+                        fontSize: "18px"
                     }}
                 >
                     수동 문구 추가
@@ -94,28 +93,35 @@ function ReviewContent({ agreementData }) {
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    height: "100%"
+                    height: "100%",
+                    overflow: "hidden"
                 }}
             >
                 <Box
                     sx={{
                         flex: 1,
                         mb: 4,
-                        overflow: "auto",
+                        px: 1,
+                        pb: 2,
+                        overflowY: "auto",
+                        overflowX: "hidden",
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "center"
+                        alignItems: "stretch"
                     }}
                 >
-                    <ReviewCard
-                        number={1}
-                        title="죽는 날까지 하늘을 우러러 한 점..."
-                        page="212/715"
-                        originalText={`죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를, 잎새에 이는 바람에도 나는 괴로워했다.\n별을 노래하는 마음으로 모든 죽어 가는 것을 사랑해야지 그리고 나한테 주어진 길을 걸어가야겠다.\n오늘 밤에도 별이 바람에 스치운다.`}
-                        confidence={98.7}
-                        reviewOpinion={`원 사업자가 입찰 내역에 없는 사항을 요구함에 따라 발생된 비용을 수급사 사업자에게 부담시키는 약정임`}
-                        suggestion={`투찰 시 “원 사업자”의 적산 기준서를 숙지하여 투찰에 임하도록 한다.`}
-                    />
+                    {agreementData.IncorrectTexts.map((data, index) => (
+                        <ReviewCard
+                            key={data.id}
+                            number={index + 1}
+                            title={data.incorrectText}
+                            page={`${data.currentPage} / `}
+                            originalText={data.incorrectText}
+                            confidence={data.accuracy}
+                            reviewOpinion={data.proofText}
+                            suggestion={data.correctedText}
+                        />
+                    ))}
                 </Box>
 
                 <Button
