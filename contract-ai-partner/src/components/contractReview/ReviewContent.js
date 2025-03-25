@@ -110,7 +110,7 @@ function ReviewContent({ agreementData }) {
                         alignItems: "stretch"
                     }}
                 >
-                    {agreementData.IncorrectTexts.map((data, index) => (
+                    {agreementData.incorrectTexts.map((data, index) => (
                         <ReviewCard
                             key={data.id}
                             number={index + 1}
