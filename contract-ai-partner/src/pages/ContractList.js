@@ -80,7 +80,7 @@ function ContractList() {
     });
 
     const handleViewDoc = (row) => {
-        navigate(`/agreement/${row.id}`, {
+        navigate(`/agreements/${row.id}`, {
             state: {
                 docName: row.name,
                 category: row.category,

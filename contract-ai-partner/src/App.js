@@ -8,15 +8,15 @@ import StandardDetail from "./pages/StandardDetail";
 
 function App() {
     return (
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/agreement" element={<ContractList />} />
-                    <Route path="/standards" element={<StandardList />} />
+        <BrowserRouter>
+            <Routes>
+                <Route path="/agreements" element={<ContractList />} />
+                <Route path="/standards" element={<StandardList />} />
 
-                    <Route path="/agreement/:id" element={<ContractReview />} />
-                    <Route path="/standards/:id" element={<StandardDetail />} />
-                </Routes>
-            </BrowserRouter>
+                <Route path="/agreements/:id" element={<ContractReview />} />
+                <Route path="/standards/:id" element={<StandardDetail />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 
