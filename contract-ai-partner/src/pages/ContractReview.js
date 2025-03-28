@@ -1,4 +1,3 @@
-// src/pages/ContractReview.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
@@ -23,24 +22,42 @@ function ContractReview() {
     const [agreementData, setAgreementData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const fetchContractData = async (contractId) => {
+        try {
+            const data = await fetchAgreementDetail(contractId);
+
+            setAgreementData(data);
+            console.log("데이터 로딩 성공:", data);
+        } catch (error) {
+            console.error("데이터 로딩 실패:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const data = await fetchAgreementDetail(id);
+        setLoading(true);
+        // 최초 1회 데이터 불러오기
+        fetchContractData(id).finally(() => {
+            setLoading(false);
+        });
+    }, [id]);
 
-                setAgreementData(data);
+    useEffect(() => {
+        let intervalId;
 
-                console.log(data);
-            } catch (error) {
-                console.error("데이터 로딩 실패", error);
-            } finally {
-                setLoading(false);
+        if (agreementData?.status === "ANALYZING") {
+            intervalId = setInterval(() => {
+                // "ANALYZING" 상태가 계속 유지되는 동안만 주기적으로 데이터 재호출
+                fetchContractData(id);
+            }, 5000);
+        }
+
+        // 상태가 ANALYZING가 아닐 때 혹은 컴포넌트 unmount 시에는 interval 해제
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
             }
         };
-
-        fetchData();
-    }, [id]);
+    }, [agreementData?.status, id]);
 
     if (loading) {
         return (

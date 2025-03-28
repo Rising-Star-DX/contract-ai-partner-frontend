@@ -242,7 +242,9 @@ const FileUploadModal = ({
 
         // 파일 수에 따라 바로 페이지 이동 또는 모달 닫기
         if (uploadingFiles.length === 1) {
-            navigate(`/standards/${uploadingFiles[0].docId}`);
+            docType === "AGREEMENT"
+                ? navigate(`/agreements/${uploadingFiles[0].docId}`)
+                : navigate(`/standards/${uploadingFiles[0].docId}`);
         } else {
             onClose();
         }
