@@ -8,8 +8,8 @@ import { highlightPlugin, Trigger } from "@react-pdf-viewer/highlight";
 import "@react-pdf-viewer/highlight/lib/styles/index.css";
 
 import BeatLoader from "react-spinners/BeatLoader";
-
 import ReviewCard from "../contractReview/ReivewCard";
+import AIFailImage from "../../assets/images/img_fail.png";
 
 function ReviewContent({ agreementData }) {
     const [highlightAreas, setHighlightAreas] = useState([]);
@@ -169,13 +169,17 @@ function ReviewContent({ agreementData }) {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        flexDirection: "column"
+                        flexDirection: "column",
+                        mb: 20
                     }}
                 >
+                    <img src={AIFailImage} height="300px" />
                     <Typography
                         sx={{
                             fontFamily: "NanumSquareNeoHeavy",
                             color: theme.palette.primary.main,
+                            fontSize: 24,
+                            mt: 4,
                             mb: 4
                         }}
                     >
