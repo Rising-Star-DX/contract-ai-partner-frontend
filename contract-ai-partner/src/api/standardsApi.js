@@ -127,6 +127,19 @@ export const fetchStandardsByNameAndCategory = async (name, categoryId) => {
     }
 };
 
+// 단일 기준 문서 조회
+export const fetchStandardDocById = async (id) => {
+    try {
+        console.log(`${process.env.REACT_APP_API_BASE_URL}/standards/${id}`);
+        const response = await apiClient.get(`/standards/${id}`);
+
+        return response.data.data;
+    } catch (error) {
+        console.error(`기준 문서(${id}) 조회 실패:`, error);
+        throw error;
+    }
+};
+
 // 기준 문서 삭제
 export const deleteStandardDoc = async (id) => {
     try {
