@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -37,6 +37,7 @@ const FileUploadModal = ({
     onDeleteFile
 }) => {
     const { categories, loading, error } = useCategory();
+    const [categoryDocsMap, setCategoryDocsMap] = useState({});
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [uploadingFiles, setUploadingFiles] = useState([]);
     const [alertInfo, setAlertInfo] = useState(null); // MUI Alert 메시지 상태
@@ -53,32 +54,14 @@ const FileUploadModal = ({
     const slicedCategory = categories.slice(1);
 
     // ─────────────────────────────────────────────
-    // 카테고리 선택 시, 해당 카테고리 문서 존재 여부 API 호출
+    // 카테고리 선택 시, 해당 카테고리로 변경
     // ─────────────────────────────────────────────
-    const [hasCategoryDocs, setHasCategoryDocs] = useState(true);
 
     const handleCategoryChange = async (e) => {
         const selectedId = e.target.value;
         const foundCat = categories.find((cat) => cat.id === selectedId);
 
         setSelectedCategory(foundCat || null);
-        setHasCategoryDocs(true);
-
-        if (docType === "AGREEMENT" && selectedId) {
-            try {
-                const hasDocs = await checkCategoryDocs(selectedId);
-
-                if (!hasDocs) {
-                    console.warn("해당 카테고리에 등록된 문서가 없습니다.");
-                }
-            } catch (err) {
-                console.error(err);
-                setAlertInfo({
-                    severity: "error",
-                    message: "카테고리 문서 확인에 실패했습니다."
-                });
-            }
-        }
     };
 
     // ---------------------------------------------
@@ -289,6 +272,38 @@ const FileUploadModal = ({
         onClose();
     };
 
+    // 카테고리에 기준 문서가 없다면 카테고리 메뉴 비활성화
+    useEffect(() => {
+        if (docType === "AGREEMENT" && slicedCategory.length > 0) {
+            const fetchCategoryDocs = async () => {
+                try {
+                    const results = await Promise.all(
+                        slicedCategory.map(async (cat) => {
+                            const hasDocs = await checkCategoryDocs(cat.id);
+
+                            return { [cat.id]: hasDocs };
+                        })
+                    );
+                    // [{1: true}, {2: false}, {3: true}, ...] 를 하나의 객체로 합치기
+                    const mergedResult = results.reduce(
+                        (acc, curr) => ({ ...acc, ...curr }),
+                        {}
+                    );
+
+                    setCategoryDocsMap(mergedResult);
+                } catch (err) {
+                    console.error("카테고리 문서 확인 오류:", err);
+                    setAlertInfo({
+                        severity: "error",
+                        message: "카테고리 문서 확인에 실패했습니다."
+                    });
+                }
+            };
+
+            fetchCategoryDocs();
+        }
+    }, [docType, slicedCategory]);
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle>파일 업로드</DialogTitle>
@@ -309,15 +324,7 @@ const FileUploadModal = ({
                 {!loading && !error && (
                     <Select
                         value={selectedCategory?.id || ""}
-                        onChange={(e) => {
-                            const selectedId = e.target.value;
-                            const foundCat = slicedCategory.find(
-                                (cat) => cat.id === selectedId
-                            );
-
-                            setSelectedCategory(foundCat || null);
-                            handleCategoryChange(e);
-                        }}
+                        onChange={handleCategoryChange}
                         fullWidth
                         displayEmpty
                         sx={{ mb: 2 }}
@@ -325,17 +332,21 @@ const FileUploadModal = ({
                         <MenuItem value="" disabled>
                             카테고리 선택
                         </MenuItem>
-                        {slicedCategory.map((cat) => (
-                            <MenuItem
-                                key={cat.id}
-                                value={cat.id}
-                                disabled={
-                                    docType === "AGREEMENT" && !hasCategoryDocs
-                                }
-                            >
-                                {cat.name}
-                            </MenuItem>
-                        ))}
+                        {slicedCategory.map((cat) => {
+                            const disabledItem =
+                                docType === "AGREEMENT" &&
+                                categoryDocsMap[cat.id] === false; // 문서가 없으면 true->false
+
+                            return (
+                                <MenuItem
+                                    key={cat.id}
+                                    value={cat.id}
+                                    disabled={disabledItem}
+                                >
+                                    {cat.name}
+                                </MenuItem>
+                            );
+                        })}
                     </Select>
                 )}
 
@@ -346,6 +357,7 @@ const FileUploadModal = ({
                     sx={{
                         border: "2px dashed #ccc",
                         padding: 4,
+                        py: 30,
                         textAlign: "center",
                         borderRadius: 2,
                         cursor: "pointer",

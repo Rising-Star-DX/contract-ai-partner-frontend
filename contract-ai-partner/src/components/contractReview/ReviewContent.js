@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Paper, Box, Grid2, Button } from "@mui/material";
+import { Paper, Box, Grid2, Button, useTheme, Typography } from "@mui/material";
 
 import { Worker, Viewer, SpecialZoomLevel } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
 import { highlightPlugin, Trigger } from "@react-pdf-viewer/highlight";
 import "@react-pdf-viewer/highlight/lib/styles/index.css";
+
+import BeatLoader from "react-spinners/BeatLoader";
 
 import ReviewCard from "../contractReview/ReivewCard";
 
@@ -16,6 +18,9 @@ function ReviewContent({ agreementData }) {
     const [openCardId, setOpenCardId] = useState(null);
     const cardRefs = useRef({});
     const scrollableContainerRef = useRef(null);
+
+    // 테마
+    const theme = useTheme();
 
     const highlightPluginInstance = highlightPlugin({
         highlightAreas,
@@ -52,7 +57,7 @@ function ReviewContent({ agreementData }) {
                                     zIndex: 1
                                 }}
                                 onClick={() => {
-                                    console.log("id: ", id);
+                                    console.log("id: ", id, "key: ", index);
 
                                     setOpenCardId(id);
                                 }}
@@ -89,6 +94,121 @@ function ReviewContent({ agreementData }) {
             top: scrollTop,
             behavior: "smooth"
         });
+    };
+
+    // 카드 표시용 중복 제거 배열
+    const uniqueIncorrectTexts = agreementData.incorrectTexts.filter(
+        (item, index, self) =>
+            self.findIndex((t) => t.incorrectText === item.incorrectText) ===
+            index
+    );
+
+    // 데이터 표시/로딩/실패 결과 표시
+    const aIResult = (aIData) => {
+        if (!aIData) {
+            return (
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column"
+                    }}
+                >
+                    <Typography sx={{ fontFamily: "NanumSquareNeoHeavy" }}>
+                        데이터를 받아오는 데 실패했습니다.
+                    </Typography>
+                </Box>
+            );
+        }
+
+        if (aIData.status === "SUCCESS") {
+            return (
+                <Box
+                    ref={scrollableContainerRef}
+                    sx={{
+                        flex: 1,
+                        mb: 4,
+                        px: 1,
+                        pb: 2,
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "stretch"
+                    }}
+                >
+                    {uniqueIncorrectTexts.map((data, index) => (
+                        <ReviewCard
+                            key={data.id}
+                            ref={(el) => {
+                                cardRefs.current[data.id] = el;
+                            }}
+                            number={index + 1}
+                            title={data.incorrectText}
+                            page={`${data.currentPage} / ${aIData.totalPage}`}
+                            originalText={data.incorrectText}
+                            confidence={data.accuracy}
+                            reviewOpinion={data.proofText}
+                            suggestion={data.correctedText}
+                            isOpen={openCardId === data.id}
+                            onChange={(_, expanded) => {
+                                setOpenCardId(expanded ? data.id : null);
+                            }}
+                            onEntered={() => handleAccordionEntered(data.id)}
+                        />
+                    ))}
+                </Box>
+            );
+        } else if (aIData.status === "AI-FAILED") {
+            return (
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column"
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: "NanumSquareNeoHeavy",
+                            color: theme.palette.primary.main,
+                            mb: 4
+                        }}
+                    >
+                        AI 분석 실패
+                    </Typography>
+                </Box>
+            );
+        } else {
+            return (
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                        mb: 12
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: "NanumSquareNeoHeavy",
+                            color: theme.palette.primary.main,
+                            fontSize: 30,
+                            mb: 4
+                        }}
+                    >
+                        AI 분석 중
+                    </Typography>
+                    <BeatLoader color={theme.palette.primary.main} size={20} />
+                </Box>
+            );
+        }
     };
 
     useEffect(() => {
@@ -173,48 +293,7 @@ function ReviewContent({ agreementData }) {
                     overflow: "hidden"
                 }}
             >
-                <Box
-                    ref={scrollableContainerRef}
-                    sx={{
-                        flex: 1,
-                        mb: 4,
-                        px: 1,
-                        pb: 2,
-                        overflowY: "auto",
-                        overflowX: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "stretch"
-                    }}
-                >
-                    {agreementData.incorrectTexts.map((data, index) => (
-                        <ReviewCard
-                            key={data.id}
-                            ref={(el) => {
-                                cardRefs.current[data.id] = el;
-                            }}
-                            number={index + 1}
-                            title={data.incorrectText}
-                            page={`${data.currentPage} / ${agreementData.totalPage}`}
-                            originalText={data.incorrectText}
-                            confidence={data.accuracy}
-                            reviewOpinion={data.proofText}
-                            suggestion={data.correctedText}
-                            isOpen={openCardId === data.id}
-                            onChange={(_, expanded) => {
-                                if (expanded) {
-                                    // 열릴 경우
-                                    setOpenCardId(data.id);
-                                } else {
-                                    // 닫힐 경우
-                                    setOpenCardId(null);
-                                }
-                            }}
-                            onEntered={() => handleAccordionEntered(data.id)}
-                        />
-                    ))}
-                </Box>
-
+                {aIResult(agreementData)}
                 <Button
                     variant="contained"
                     color="primary"

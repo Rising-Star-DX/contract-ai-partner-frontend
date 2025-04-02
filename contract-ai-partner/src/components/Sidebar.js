@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 
 // 아이콘 import
@@ -17,42 +18,56 @@ import avatarSample from "../assets/images/avatar_sample.png";
 // context
 import RoleContext from "../contexts/RoleContext";
 
+/**
+ * MSA 기반 AI 계약서 검토 시스템 - Sidebar 컴포넌트
+ * - 관리자 / 사용자 권한(role)에 따라 메뉴가 달라짐
+ * - 메인/서브 메뉴 클릭 시, 경로 이동 (react-router-dom)
+ * - 서브 메뉴 펼침/접힘(toggle) 가능
+ * - no-unused-vars 규칙을 지켜 불필요한 변수를 모두 제거
+ */
 function Sidebar() {
-    // 열려있는 상위 메뉴 key (한 번에 하나만 열리게)
+    // 열려있는 상위 메뉴 key (한 번에 하나만 열리도록)
     const [openedMenu, setOpenedMenu] = useState(null);
-    // 선택된 메뉴 key (하위 메뉴까지 포함)
-    const [selectedMenuKey, setSelectedMenuKey] = useState(null);
 
-    // 상위 메뉴 클릭 시
-    const handleMainMenuClick = (menuKey, hasSubMenu) => {
-        // hasSubMenu가 없으면 그냥 선택만
-        if (!hasSubMenu) {
-            setSelectedMenuKey(menuKey);
-            // 다른 메뉴 열려있으면 닫기
-            setOpenedMenu(null);
-            return;
-        }
-
-        // hasSubMenu가 있는 메뉴면, 클릭 시 토글
-        if (openedMenu === menuKey) {
-            // 이미 열려있다면 닫기
-            setOpenedMenu(null);
-        } else {
-            // 다른 메뉴가 열려있다면 먼저 닫고, 새 메뉴 열기
-            setOpenedMenu(menuKey);
-        }
-        // 상위 메뉴 자체를 선택한 것으로 처리
-        setSelectedMenuKey(menuKey);
-    };
-
-    const handleSubMenuClick = (subKey) => {
-        setSelectedMenuKey(subKey);
-    };
+    // 리액트 라우터
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
 
     // 권한
     const role = useContext(RoleContext);
 
-    // 권한별 메뉴 구성
+    /**
+     * 상위 메뉴 클릭 시 실행
+     * @param {string} menuKey - 상위 메뉴를 식별하기 위한 key
+     * @param {boolean} hasSubMenu - 하위 메뉴 존재 여부
+     * @param {string} path - 이동할 경로 (있을 경우)
+     */
+    const handleMainMenuClick = (menuKey, hasSubMenu, path) => {
+        // 서브 메뉴가 없다면 바로 경로 이동
+        if (!hasSubMenu && path) {
+            navigate(path);
+        }
+        // 서브 메뉴 토글
+        if (openedMenu === menuKey) {
+            // 이미 열려있다면 닫기
+            setOpenedMenu(null);
+        } else {
+            // 다른 메뉴가 열려있으면 먼저 닫고 새 메뉴 열기
+            setOpenedMenu(menuKey);
+        }
+    };
+
+    /**
+     * 하위 메뉴 클릭 시 실행
+     * @param {string} subKey - 하위 메뉴를 식별하기 위한 key
+     * @param {string} path - 이동할 경로 (있을 경우)
+     */
+    const handleSubMenuClick = (subKey, path) => {
+        if (path) {
+            navigate(path);
+        }
+    };
+
     // 관리자 메뉴
     const adminMenus = [
         {
@@ -63,44 +78,52 @@ function Sidebar() {
                 {
                     key: "standardDocs",
                     label: "기준 문서 일람",
+                    path: "/standards"
                 },
                 {
                     key: "categoryMgmt",
                     label: "카테고리 관리",
-                },
-            ],
+                    path: ""
+                }
+            ]
         },
         {
             key: "contractDocs",
             label: "계약 문서",
             icon: <AssignmentOutlinedIcon />,
+            path: "/agreements"
         },
         {
             key: "userHistory",
             label: "사용자 이력",
             icon: <AccountCircleOutlinedIcon />,
-        },
+            path: ""
+        }
     ];
 
+    // 사용자 메뉴
     const userMenus = [
         {
             key: "contract",
             icon: <AssignmentOutlinedIcon />,
             label: "계약 문서",
+            path: "/agreements"
         },
         {
             key: "ai",
             icon: <InsightsOutlinedIcon />,
-            label: "AI 분석 보고서",
+            label: "AI 분석 보고서"
+            // path 미지정 시 navigate 생략 가능 (또는 추후 설정)
         },
         {
             key: "criteria",
             icon: <BalanceOutlinedIcon />,
             label: "기준 문서",
-        },
+            path: "/standards"
+        }
     ];
 
-    // role이 admin이면 adminMenus, 아니면 userMenus
+    // 권한별로 메뉴 분기
     const menusToRender = role === "admin" ? adminMenus : userMenus;
 
     return (
@@ -111,27 +134,26 @@ function Sidebar() {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                bgcolor: "#ffffff",
+                bgcolor: "#ffffff"
             }}
         >
             {/* 네비게이션 메뉴 */}
             <Box>
                 {menusToRender.map((menu) => {
-                    const hasSubMenu = menu.subMenu && menu.subMenu.length > 0;
-                    // isOpen: 현재 열려있는 상위 메뉴 key와 일치하면 true
+                    // 하위 메뉴 존재 여부
+                    const hasSubMenu =
+                        Array.isArray(menu.subMenu) && menu.subMenu.length > 0;
+
+                    // 현재 열린 상위 메뉴인지 확인
                     const isOpen = openedMenu === menu.key;
 
-                    // 하위 메뉴들의 key 목록
-                    const subMenuKeys = hasSubMenu
-                        ? menu.subMenu.map((item) => item.key)
+                    // (서브 메뉴 path도 고려하여) 현재 경로와 비교해 상위 메뉴 활성화 판별
+                    const subPaths = hasSubMenu
+                        ? menu.subMenu.map((sub) => sub.path)
                         : [];
-
-                    // [상위 메뉴 활성화 조건]
-                    // 1) selectedMenuKey === menu.key
-                    // 2) selectedMenuKey가 subMenuKeys에 포함되어 있으면 상위 메뉴도 활성
                     const isActiveMain =
-                        selectedMenuKey === menu.key ||
-                        subMenuKeys.includes(selectedMenuKey);
+                        (menu.path && pathname.startsWith(menu.path)) ||
+                        subPaths.some((p) => p && pathname.startsWith(p));
 
                     return (
                         <NavigationMenuItem
@@ -142,13 +164,26 @@ function Sidebar() {
                             subMenu={menu.subMenu || []}
                             isOpen={isOpen}
                             isActiveMain={isActiveMain}
-                            activeKey={selectedMenuKey} // 현재 선택된 상위/하위 메뉴 key
-                            onMainClick={(key, hasSub) =>
-                                handleMainMenuClick(key, hasSubMenu)
-                            }
-                            onSubMenuClick={(subKey) =>
-                                handleSubMenuClick(subKey)
-                            }
+                            // 현재 경로를 activeKey로 넘김
+                            activeKey={pathname}
+                            // 상위 메뉴 클릭
+                            onMainClick={(clickedKey, isSub) => {
+                                handleMainMenuClick(
+                                    clickedKey,
+                                    isSub,
+                                    menu.path
+                                );
+                            }}
+                            // 하위 메뉴 클릭
+                            onSubMenuClick={(subKey) => {
+                                const sub = menu.subMenu?.find(
+                                    (item) => item.key === subKey
+                                );
+
+                                if (sub) {
+                                    handleSubMenuClick(subKey, sub.path);
+                                }
+                            }}
                         />
                     );
                 })}

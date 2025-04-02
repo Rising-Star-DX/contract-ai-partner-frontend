@@ -44,9 +44,18 @@ function ContractReview() {
     useEffect(() => {
         let intervalId;
 
-        if (agreementData?.status === "ANALYZING") {
+        if (!agreementData?.status) {
+            return () => {};
+        }
+
+        if (
+            agreementData?.status !== "SUCCESS" &&
+            agreementData?.status !== "AI-FAILED"
+        ) {
             intervalId = setInterval(() => {
-                // "ANALYZING" 상태가 계속 유지되는 동안만 주기적으로 데이터 재호출
+                // "SUCCESS" 상태가 아니라면 주기적으로 데이터 재호출
+                console.log(agreementData.status);
+
                 fetchContractData(id);
             }, 5000);
         }

@@ -11,7 +11,7 @@ function NavigationMenuItem({
     onSubMenuClick, // 서브 메뉴 클릭 시 실행될 함수(옵션)
     activeKey, // 현재 선택된 메뉴 key
     menuKey, // 상위 메뉴 구분용 key
-    isActiveMain, // 상위 메뉴 활성화 여부
+    isActiveMain // 상위 메뉴 활성화 여부
 }) {
     const theme = useTheme();
 
@@ -26,8 +26,8 @@ function NavigationMenuItem({
                 color:
                     isActive || isActiveMain
                         ? theme.palette.primary.main
-                        : "#ABB2B9",
-            },
+                        : "#ABB2B9"
+            }
         });
     }
 
@@ -57,18 +57,18 @@ function NavigationMenuItem({
                                 height: 40,
                                 cursor: "pointer",
                                 userSelect: "none",
-                                "&:hover": { backgroundColor: "#F0F4FA" },
+                                "&:hover": { backgroundColor: "#F0F4FA" }
                             }}
                         >
                             {/* 서브메뉴 라벨 */}
                             <Typography
                                 sx={{
                                     color:
-                                        activeKey === item.key
+                                        activeKey === item.path
                                             ? theme.palette.primary.main
                                             : "#666",
                                     fontSize: 14,
-                                    fontWeight: 600,
+                                    fontWeight: 600
                                 }}
                             >
                                 {item.label}
@@ -93,9 +93,9 @@ function NavigationMenuItem({
                     cursor: "pointer",
                     userSelect: "none",
                     "&:hover": {
-                        backgroundColor: "#E0E8F6",
+                        backgroundColor: "#E0E8F6"
                     },
-                    bgcolor: isActiveMain ? "#E0E8F6" : "#FFFFFF",
+                    bgcolor: isActiveMain ? "#E0E8F6" : "#FFFFFF"
                 }}
             >
                 {/* 상단 아이콘 */}
@@ -108,7 +108,7 @@ function NavigationMenuItem({
                             ? theme.palette.primary.main
                             : "#ABB2B9",
                         fontWeight: 900,
-                        fontSize: 16,
+                        fontSize: 16
                     }}
                 >
                     {label}
