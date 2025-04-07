@@ -77,6 +77,7 @@ function DocumentListPage({
                 headerHeight={60}
                 sx={{
                     minHeight: "100%",
+                    bgcolor: "white",
                     "& .MuiDataGrid-columnHeader": {
                         backgroundColor: "#E5E7E9"
                     },

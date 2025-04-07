@@ -5,6 +5,7 @@ import ContractList from "./pages/ContractList";
 import ContractReview from "./pages/ContractReview";
 import StandardList from "./pages/StandardList";
 import StandardDetail from "./pages/StandardDetail";
+import CategoryList from "./pages/CategoryList";
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
             <Routes>
                 <Route path="/agreements" element={<ContractList />} />
                 <Route path="/standards" element={<StandardList />} />
+                <Route path="/categories" element={<CategoryList />} />
 
                 <Route path="/agreements/:id" element={<ContractReview />} />
                 <Route path="/standards/:id" element={<StandardDetail />} />

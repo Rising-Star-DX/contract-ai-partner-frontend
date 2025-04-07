@@ -83,7 +83,7 @@ function Sidebar() {
                 {
                     key: "categoryMgmt",
                     label: "카테고리 관리",
-                    path: ""
+                    path: "/categories"
                 }
             ]
         },
