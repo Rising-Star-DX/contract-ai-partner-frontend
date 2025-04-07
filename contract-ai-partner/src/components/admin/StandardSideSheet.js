@@ -1,4 +1,3 @@
-// src/components/admin/StandardSideSheetMaterial.js
 import React, { useState } from "react";
 
 // [수정됨] MUI 컴포넌트 임포트
@@ -14,6 +13,8 @@ import {
 
 // [수정됨] MUI 아이콘
 import CloseIcon from "@mui/icons-material/Close";
+
+import { getDocIcon } from "../../utils/docUtils";
 
 function StandardSideSheet({ doc, onClose }) {
     // 탭 상태
@@ -46,7 +47,7 @@ function StandardSideSheet({ doc, onClose }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {/* PDF 아이콘 부분(아이콘은 예시로만) */}
                     <img
-                        src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
+                        src={getDocIcon(doc.iconType)}
                         alt="PDF Icon"
                         style={{
                             width: 32,
@@ -55,14 +56,14 @@ function StandardSideSheet({ doc, onClose }) {
                             marginRight: 16
                         }}
                     />
-                    {/* [수정됨] Joy UI의 level="h6" 대신 variant="h6" 사용 */}
+                    {/* 문서 이름 */}
                     <Typography
                         sx={{ fontFamily: "NanumSquareNeoHeavy", fontSize: 24 }}
                     >
                         {doc.name}
                     </Typography>
                 </Box>
-                {/* [수정됨] Joy UI IconButton variant="plain" → MUI IconButton 그대로 */}
+                {/* 시트 닫기 버튼 */}
                 <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
@@ -87,11 +88,7 @@ function StandardSideSheet({ doc, onClose }) {
             <Divider />
             <Box sx={{ flex: 1, overflowY: "auto", p: 4 }}>
                 {tabValue === 0 && (
-                    <Typography
-                        // Joy UI의 level="body1" 대신 MUI variant="body1"
-                        variant="body1"
-                        sx={{ whiteSpace: "pre-wrap" }}
-                    >
+                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
                         {doc.content}
                     </Typography>
                 )}
