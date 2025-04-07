@@ -26,7 +26,9 @@ function DocumentListPage({
     tabValue, // 카테고리 탭
     onTabChange, // 탭 변경 핸들러
     error, // 문서 리스트 조회 에러
-    onSearch // 검색어 조회 핸들러
+    onSearch, // 검색어 조회 핸들러
+    sideSheetOpen = false, // 사이드 시트 열림 여부
+    sideSheet = null
 }) {
     const renderContent = () => {
         if (loading) {
@@ -142,9 +144,42 @@ function DocumentListPage({
                 {/* 검색 바 컴포넌트 사용 */}
                 <SearchBar onSearch={onSearch} placeholder="검색어 입력" />
 
-                {/* 문서 리스트 영역 */}
-                <Box sx={{ flexGrow: 1, overflow: "auto", bgcolor: "#FFFFFF" }}>
-                    {renderContent()}
+                {/* 문서 리스트 + 사이드 시트 배치 영역 */}
+                <Box
+                    sx={{
+                        flexGrow: 1,
+                        overflow: "auto",
+                        display: "flex",
+                        // 사이드 시트 열려 있으면 Left(50%) + Right(나머지) 구조
+                        // 열려있지 않으면 Left(100%)만 사용
+                        flexDirection: "row",
+                        width: "100%",
+                        gap: 4
+                    }}
+                >
+                    {/* 왼쪽: 문서 리스트 (DataGrid) */}
+                    <Box
+                        sx={{
+                            width: sideSheetOpen ? "50%" : "100%",
+                            transition: "width 0.3s ease"
+                        }}
+                    >
+                        {renderContent()}
+                    </Box>
+
+                    {/* 오른쪽: 사이드 시트 */}
+                    {sideSheetOpen && (
+                        <Box
+                            sx={{
+                                width: "50%",
+                                transition: "width 0.3s ease",
+                                height: "100%",
+                                overflow: "hidden"
+                            }}
+                        >
+                            {sideSheet}
+                        </Box>
+                    )}
                 </Box>
             </Box>
         </MainLayout>

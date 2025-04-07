@@ -1,7 +1,11 @@
-// src/pages/StandardList.js
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Box } from "@mui/material";
+
+import FileUploadModal from "../components/FileUploadModal";
+import DocumentListPage from "../components/DocumentListPage";
+import StandardSideSheet from "../components/admin/StandardSideSheet";
 
 import RoleContext from "../contexts/RoleContext";
 import DocumentListPage from "../components/DocumentListPage";
@@ -102,13 +106,31 @@ function StandardList() {
 
     // 문서 보기 클릭
     const handleViewDoc = (row) => {
-        navigate(`/standards/${row.id}`, {
-            state: {
-                docName: row.name,
+        if (role === "admin") {
+            // [수정됨] navigate 대신 selectedDoc 세팅
+            console.log("관리자 문서보기 클릭");
+
+            setSelectedDoc({
+                id: row.id,
+                name: row.name,
                 category: row.category,
-                docType: row.iconType
-            }
-        });
+                iconType: row.iconType,
+                content: "테스트테스트테스트"
+            });
+        } else {
+            navigate(`/standards/${row.id}`, {
+                state: {
+                    docName: row.name,
+                    category: row.category,
+                    docType: row.iconType
+                }
+            });
+        }
+    };
+
+    // 관리자용 사이드 시트 닫기
+    const handleCloseSheet = () => {
+        setSelectedDoc(null);
     };
 
     // 새 문서 버튼 클릭
@@ -149,7 +171,7 @@ function StandardList() {
     };
 
     return (
-        <>
+        <Box sx={{ width: "100%" }}>
             <DocumentListPage
                 title="기준 문서 일람"
                 rows={documents}
@@ -164,6 +186,17 @@ function StandardList() {
                 onTabChange={(e, newValue) => setTabValue(newValue)}
                 error={isError ? "문서 목록 로딩 중 오류 발생" : null}
                 onSearch={handleSearch}
+                // 사이드 시트 열림 여부
+                sideSheetOpen={Boolean(selectedDoc)}
+                // 사이드 시트 내용
+                sideSheet={
+                    selectedDoc ? (
+                        <StandardSideSheet
+                            doc={selectedDoc}
+                            onClose={handleCloseSheet}
+                        />
+                    ) : null
+                }
             />
 
             {/* 파일 업로드 모달 */}
@@ -175,7 +208,7 @@ function StandardList() {
                 onRequestAnalysis={requestAnalysis}
                 onDeleteFile={cancelUploadedDoc}
             />
-        </>
+        </Box>
     );
 }
 
