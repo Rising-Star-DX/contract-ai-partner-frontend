@@ -39,7 +39,11 @@ const CATEGORY_COLUMNS = (onRowView, onRowDelete) => [
         headerAlign: "center",
         align: "center",
         renderCell: (params) => (
-            <IconButton onClick={() => {}}>
+            <IconButton
+                onClick={() => {
+                    onRowView?.(params.row);
+                }}
+            >
                 <ModeEditOutlinedIcon />
             </IconButton>
         )
@@ -51,7 +55,12 @@ const CATEGORY_COLUMNS = (onRowView, onRowDelete) => [
         headerAlign: "center",
         align: "center",
         renderCell: (params) => (
-            <IconButton color="error" onClick={() => {}}>
+            <IconButton
+                color="error"
+                onClick={() => {
+                    onRowDelete?.(params.row.id);
+                }}
+            >
                 <ClearOutlinedIcon />
             </IconButton>
         )
