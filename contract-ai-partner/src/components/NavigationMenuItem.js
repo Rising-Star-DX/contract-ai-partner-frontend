@@ -43,7 +43,7 @@ function NavigationMenuItem({
     const renderSubMenu = () => {
         if (subMenu.length === 0) return null;
         return (
-            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+            <Collapse in={isOpen} timeout="auto">
                 <Box sx={{ pl: 12 }}>
                     {subMenu.map((item) => (
                         <Box

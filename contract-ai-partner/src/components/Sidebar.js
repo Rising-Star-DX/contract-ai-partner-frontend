@@ -6,7 +6,6 @@ import { Box } from "@mui/material";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 
 // 컴포넌트
 import NavigationMenuItem from "./NavigationMenuItem";
@@ -25,6 +24,7 @@ import RoleContext from "../contexts/RoleContext";
  * - 서브 메뉴 펼침/접힘(toggle) 가능
  * - no-unused-vars 규칙을 지켜 불필요한 변수를 모두 제거
  */
+
 function Sidebar() {
     // 열려있는 상위 메뉴 key (한 번에 하나만 열리도록)
     const [openedMenu, setOpenedMenu] = useState(null);
@@ -43,17 +43,15 @@ function Sidebar() {
      * @param {string} path - 이동할 경로 (있을 경우)
      */
     const handleMainMenuClick = (menuKey, hasSubMenu, path) => {
+        setOpenedMenu(menuKey);
         // 서브 메뉴가 없다면 바로 경로 이동
-        if (!hasSubMenu && path) {
+        if (hasSubMenu) {
+            // 서브 메뉴 토글
+            if (openedMenu !== menuKey) {
+                setOpenedMenu(menuKey);
+            }
+        } else if (path) {
             navigate(path);
-        }
-        // 서브 메뉴 토글
-        if (openedMenu === menuKey) {
-            // 이미 열려있다면 닫기
-            setOpenedMenu(null);
-        } else {
-            // 다른 메뉴가 열려있으면 먼저 닫고 새 메뉴 열기
-            setOpenedMenu(menuKey);
         }
     };
 
@@ -62,10 +60,8 @@ function Sidebar() {
      * @param {string} subKey - 하위 메뉴를 식별하기 위한 key
      * @param {string} path - 이동할 경로 (있을 경우)
      */
-    const handleSubMenuClick = (subKey, path) => {
-        if (path) {
-            navigate(path);
-        }
+    const handleSubMenuClick = (subKey, subPath) => {
+        navigate(subPath);
     };
 
     // 관리자 메뉴
@@ -92,12 +88,6 @@ function Sidebar() {
             label: "계약 문서",
             icon: <AssignmentOutlinedIcon />,
             path: "/agreements"
-        },
-        {
-            key: "userHistory",
-            label: "사용자 이력",
-            icon: <AccountCircleOutlinedIcon />,
-            path: ""
         }
     ];
 
@@ -181,7 +171,7 @@ function Sidebar() {
                                 );
 
                                 if (sub) {
-                                    handleSubMenuClick(subKey, sub.path);
+                                    handleSubMenuClick(sub.key, sub.path);
                                 }
                             }}
                         />

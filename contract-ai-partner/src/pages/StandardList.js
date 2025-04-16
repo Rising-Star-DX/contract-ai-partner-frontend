@@ -13,16 +13,14 @@ import { useCategory } from "../contexts/CategoryContext";
 import {
     uploadStandardDoc,
     requestAnalysis,
-    // fetchAllStandardDocs,
-    // fetchStandardsByCategory,
-    // fetchStandardsByName,
-    // fetchStandardsByNameAndCategory,
+    fetchAllStandardDocs,
+    fetchStandardsByCategory,
+    fetchStandardsByName,
+    fetchStandardsByNameAndCategory,
     deleteStandardDoc,
     cancelUploadedDoc
 } from "../api/standardsApi";
 import { mapDocsForGrid } from "../utils/docUtils";
-
-import mockData from "../mock/mockStandardList";
 
 function StandardList() {
     const role = useContext(RoleContext);
@@ -38,74 +36,72 @@ function StandardList() {
 
     // 탭 상태 관리
     const [tabValue, setTabValue] = useState(0);
-    // const selectedCategoryId = categories[tabValue]?.id || null;
+    const selectedCategoryId = categories[tabValue]?.id || null;
 
     // 선택된 문서의 관리자 사이드 시트
     const [selectedDoc, setSelectedDoc] = useState(null);
 
     // 검색 키워드 + 카테고리를 종합해서 한 번에 불러오는 함수
     const fetchDocuments = async () => {
-        console.log(mapDocsForGrid(mockData.data));
+        // 검색어
+        const trimmedSearch = searchValue.trim();
 
-        return mapDocsForGrid(mockData.data);
-        // // 검색어
-        // const trimmedSearch = searchValue.trim();
+        // 만약 이름으로 검색 중이면
+        if (trimmedSearch) {
+            // 만약 카테고리도 지정되어 있다면 이름과 카테고리로 조회
+            if (selectedCategoryId && selectedCategoryId !== 0) {
+                const data = await fetchStandardsByNameAndCategory(
+                    trimmedSearch,
+                    selectedCategoryId
+                );
 
-        // // 만약 이름으로 검색 중이면
-        // if (trimmedSearch) {
-        //     // 만약 카테고리도 지정되어 있다면 이름과 카테고리로 조회
-        //     if (selectedCategoryId && selectedCategoryId !== 0) {
-        //         const data = await fetchStandardsByNameAndCategory(
-        //             trimmedSearch,
-        //             selectedCategoryId
-        //         );
+                return mapDocsForGrid(data);
+            }
 
-        //         return mapDocsForGrid(data);
-        //     }
+            // 그렇지 않으면 이름으로만 조회
+            const data = await fetchStandardsByName(trimmedSearch);
 
-        //     // 그렇지 않으면 이름으로만 조회
-        //     const data = await fetchStandardsByName(trimmedSearch);
+            return mapDocsForGrid(data);
+        }
 
-        //     return mapDocsForGrid(data);
-        // }
+        if (selectedCategoryId && selectedCategoryId !== 0) {
+            const data = await fetchStandardsByCategory(selectedCategoryId);
 
-        // if (selectedCategoryId && selectedCategoryId !== 0) {
-        //     const data = await fetchStandardsByCategory(selectedCategoryId);
+            return mapDocsForGrid(data);
+        }
 
-        //     return mapDocsForGrid(data);
-        // }
+        const data = await fetchAllStandardDocs();
 
-        // const data = await fetchAllStandardDocs();
-
-        // return mapDocsForGrid(data);
+        return mapDocsForGrid(data);
     };
 
     // useQuery 훅 - React Query
     const {
         data: documents = [], // 문서 목록 (기본값 [])
         isLoading,
-        isError
+        isError,
+        refetch
     } = useQuery({
         queryKey: ["documents", searchValue], // 캐시 키
         queryFn: fetchDocuments, // API 호출 함수
         // 5초마다 자동 리페치 (폴링)
-        // refetchInterval: (query) => {
-        //     if (!query.state.data) return false;
-        //     // data에 IN_PROGRESS가 하나라도 있으면 5초
-        //     const inProgress = query.state.data.some(
-        //         (doc) => doc.status === "AI 분석 중"
-        //     );
+        refetchInterval: (query) => {
+            if (!query.state.data) return false;
+            // data에 IN_PROGRESS가 하나라도 있으면 5초
+            const inProgress = query.state.data.some(
+                (doc) => doc.status === "AI 분석 중"
+            );
 
-        //     if (inProgress) {
-        //         console.log("AI 분석 중 존재");
-        //         return 5000;
-        //     }
-        //     return false; // 없으면 폴링 해제
-        // },
+            if (inProgress) {
+                console.log("AI 분석 중 존재");
+                return 5000;
+            }
+            return false; // 없으면 폴링 해제
+        },
         // 컴포넌트가 포커스될 때 자동 리페치
         refetchOnWindowFocus: false,
         // 데이터를 최대로 몇 초 동안 캐시에 둬서 stale 상태를 방지할지 등등...
-        staleTime: Infinity
+        staleTime: 0
     });
 
     // 문서 보기 클릭
@@ -154,7 +150,7 @@ function StandardList() {
             alert("문서가 성공적으로 삭제되었습니다.");
 
             // 삭제 후 문서 목록 다시 불러오기
-            // refetch();
+            refetch();
         } catch (deleteError) {
             console.error("삭제 중 오류:", deleteError);
             alert("문서를 삭제하지 못했습니다. 다시 시도해주세요.");
@@ -165,7 +161,7 @@ function StandardList() {
     const handleUpload = (file) => {
         console.log("업로드된 파일:", file);
         setModalOpen(false);
-        // refetch();
+        refetch();
     };
 
     // 문서 이름 검색

@@ -198,6 +198,8 @@ const FileUploadModal = ({
     // "추가" 버튼 -> AI 분석 API 호출 (requestAnalysis)
     // ---------------------------------------------
     const handleAnalysis = async () => {
+        console.log(uploadingFiles);
+
         if (uploadingFiles.length === 0) {
             setAlertInfo({
                 severity: "error",

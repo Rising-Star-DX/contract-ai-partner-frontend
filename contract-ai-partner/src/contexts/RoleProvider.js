@@ -3,7 +3,7 @@ import React from "react";
 import RoleContext from "./RoleContext";
 
 function RoleProvider({ children }) {
-    const role = "user";
+    const role = "admin";
 
     // 로그인 구현 되면 활성화 할 부분
     // const [role, setRole] = useState(null);
