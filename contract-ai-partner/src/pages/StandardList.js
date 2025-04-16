@@ -39,7 +39,7 @@ function StandardList() {
     const selectedCategoryId = categories[tabValue]?.id || null;
 
     // 선택된 문서의 관리자 사이드 시트
-    const [selectedDoc, setSelectedDoc] = useState(null);
+    const [selectedDocId, setSelectedDocId] = useState(null);
 
     // 검색 키워드 + 카테고리를 종합해서 한 번에 불러오는 함수
     const fetchDocuments = async () => {
@@ -105,18 +105,11 @@ function StandardList() {
     });
 
     // 문서 보기 클릭
-    const handleViewDoc = (row) => {
+    const handleViewDoc = async (row) => {
         if (role === "admin") {
             // [수정됨] navigate 대신 selectedDoc 세팅
             console.log("관리자 문서보기 클릭");
-
-            setSelectedDoc({
-                id: row.id,
-                name: row.name,
-                category: row.category,
-                iconType: row.iconType,
-                content: "테스트테스트테스트"
-            });
+            setSelectedDocId(row.id);
         } else {
             navigate(`/standards/${row.id}`, {
                 state: {
@@ -130,7 +123,7 @@ function StandardList() {
 
     // 관리자용 사이드 시트 닫기
     const handleCloseSheet = () => {
-        setSelectedDoc(null);
+        setSelectedDocId(null);
     };
 
     // 새 문서 버튼 클릭
@@ -187,12 +180,12 @@ function StandardList() {
                 error={isError ? "문서 목록 로딩 중 오류 발생" : null}
                 onSearch={handleSearch}
                 // 사이드 시트 열림 여부
-                sideSheetOpen={Boolean(selectedDoc)}
+                sideSheetOpen={Boolean(selectedDocId)}
                 // 사이드 시트 내용
                 sideSheet={
-                    selectedDoc ? (
+                    selectedDocId ? (
                         <StandardSideSheet
-                            doc={selectedDoc}
+                            docId={selectedDocId}
                             onClose={handleCloseSheet}
                         />
                     ) : null
