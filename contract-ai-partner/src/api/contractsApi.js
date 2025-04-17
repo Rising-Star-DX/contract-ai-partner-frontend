@@ -145,3 +145,18 @@ export const cancelUploadedContract = async (id) => {
         throw error;
     }
 };
+
+// AI 분석 보고서 데이터 가져오기
+export const fetchAIReport = async (id) => {
+    try {
+        const response = await apiClient.get(`/agreements/analysis/${id}`);
+
+        console.log(
+            `계약 문서(${id}) AI 분석 보고서${response.data.data} 로딩 완료`
+        );
+        return response.data.data;
+    } catch (error) {
+        console.error(`계약 문서(${id}) AI 분석 보고서 로딩 실패:`, error);
+        throw error;
+    }
+};

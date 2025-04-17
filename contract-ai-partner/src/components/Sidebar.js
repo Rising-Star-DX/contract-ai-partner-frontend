@@ -4,7 +4,6 @@ import { Box } from "@mui/material";
 
 // 아이콘 import
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
-import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import BalanceOutlinedIcon from "@mui/icons-material/BalanceOutlined";
 
 // 컴포넌트
@@ -98,12 +97,6 @@ function Sidebar() {
             icon: <AssignmentOutlinedIcon />,
             label: "계약 문서",
             path: "/agreements"
-        },
-        {
-            key: "ai",
-            icon: <InsightsOutlinedIcon />,
-            label: "AI 분석 보고서"
-            // path 미지정 시 navigate 생략 가능 (또는 추후 설정)
         },
         {
             key: "criteria",

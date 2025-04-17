@@ -7,6 +7,8 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { highlightPlugin, Trigger } from "@react-pdf-viewer/highlight";
 import "@react-pdf-viewer/highlight/lib/styles/index.css";
 
+import { useNavigate } from "react-router-dom";
+
 import BeatLoader from "react-spinners/BeatLoader";
 import ReviewCard from "../contractReview/ReivewCard";
 import AIFailImage from "../../assets/images/img_fail.png";
@@ -21,6 +23,9 @@ function ReviewContent({ agreementData }) {
 
     // 테마
     const theme = useTheme();
+
+    // 네비게이션
+    const navigation = useNavigate();
 
     const highlightPluginInstance = highlightPlugin({
         highlightAreas,
@@ -299,6 +304,9 @@ function ReviewContent({ agreementData }) {
             >
                 {aIResult(agreementData)}
                 <Button
+                    onClick={() => {
+                        navigation(`/agreements/analysis/${agreementData.id}`);
+                    }}
                     variant="contained"
                     color="primary"
                     fullWidth

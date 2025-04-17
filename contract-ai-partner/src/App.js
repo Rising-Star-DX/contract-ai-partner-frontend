@@ -6,6 +6,7 @@ import ContractReview from "./pages/ContractReview";
 import StandardList from "./pages/StandardList";
 import StandardDetail from "./pages/StandardDetail";
 import CategoryList from "./pages/CategoryList";
+import AIReport from "./pages/AIReport";
 
 function App() {
     return (
@@ -17,6 +18,8 @@ function App() {
 
                 <Route path="/agreements/:id" element={<ContractReview />} />
                 <Route path="/standards/:id" element={<StandardDetail />} />
+
+                <Route path="/agreements/analysis/:id" element={<AIReport />} />
             </Routes>
         </BrowserRouter>
     );
