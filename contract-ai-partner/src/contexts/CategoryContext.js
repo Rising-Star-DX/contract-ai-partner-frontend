@@ -31,8 +31,6 @@ export const CategoryProvider = ({ children }) => {
 
             // 필요한 데이터 가공 후 상태에 저장
             setCategories([all, ...data]);
-
-            console.log(categories);
         } catch (fetchError) {
             setError("카테고리를 불러오지 못했습니다.");
             console.error("카테고리 조회 오류:", fetchError);
@@ -44,7 +42,7 @@ export const CategoryProvider = ({ children }) => {
     // 컴포넌트가 마운트될 때 카테고리 가져오기
     useEffect(() => {
         fetchCategories();
-    }, []);
+    }, [categories]);
 
     return (
         <CategoryContext.Provider

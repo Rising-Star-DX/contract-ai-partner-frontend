@@ -34,9 +34,11 @@ export const fetchCategoriesByName = async (name) => {
 };
 
 // 새 카테고리 생성
-export const createCategory = async (newCategoryName) => {
+export const createCategory = async (categoryName) => {
     try {
-        const response = await apiClient.post("/categories", newCategoryName);
+        const response = await apiClient.post("/categories", {
+            name: categoryName
+        });
 
         return response.data;
     } catch (error) {
@@ -48,10 +50,9 @@ export const createCategory = async (newCategoryName) => {
 // 카테고리 업데이트
 export const updateCategory = async (categoryId, categoryName) => {
     try {
-        const response = await apiClient.patch(
-            `/categories/${categoryId}`,
-            categoryName
-        );
+        const response = await apiClient.patch(`/categories/${categoryId}`, {
+            name: categoryName
+        });
 
         return response.data;
     } catch (error) {
