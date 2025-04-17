@@ -42,7 +42,7 @@ export const CategoryProvider = ({ children }) => {
     // 컴포넌트가 마운트될 때 카테고리 가져오기
     useEffect(() => {
         fetchCategories();
-    }, [categories]);
+    }, []);
 
     return (
         <CategoryContext.Provider
