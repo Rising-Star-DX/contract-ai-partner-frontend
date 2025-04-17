@@ -59,6 +59,7 @@ function SearchBar({ onSearch, placeholder = "검색어 입력", delay = 500 }) 
                 alignItems: "center",
                 p: 2,
                 bgcolor: "#FFFFFF",
+                mt: 2,
                 mb: 2
             }}
         >

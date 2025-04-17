@@ -124,16 +124,16 @@ function DocumentListPage({
                             size="large"
                             onClick={onNewDocClick}
                         >
-                            + 새 문서
+                            {title === "카테고리 목록"
+                                ? "+ 새 카테고리"
+                                : "+ 새 문서"}
                         </Button>
                     )}
                 </Box>
 
                 {/* 카테고리 탭 */}
                 {tabs.length > 0 && (
-                    <Box
-                        sx={{ borderBottom: 2, borderColor: "divider", mb: 2 }}
-                    >
+                    <Box sx={{ borderBottom: 2, borderColor: "divider" }}>
                         <Tabs value={tabValue} onChange={onTabChange}>
                             {tabs.map((tab) => (
                                 <Tab key={tab.id} label={tab.name} />

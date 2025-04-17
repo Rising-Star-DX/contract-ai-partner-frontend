@@ -22,17 +22,20 @@ import {
     getCategories,
     fetchCategoriesByName,
     createCategory,
-    deleteCategory
+    deleteCategory,
+    updateCategory
 } from "../api/categoryApi"; // 카테고리 API 예시
 
 function CategoryList() {
     const role = useContext(RoleContext);
     const [searchValue, setSearchValue] = useState("");
+
     const [modalOpen, setModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState(false); // 생성/수정 모드
+    const [editingId, setEditingId] = useState(null); // 수정할 ID
+    const [categoryName, setCategoryName] = useState(""); // 입력 필드
 
     const [tabValue, setTabValue] = useState(0);
-
-    const [newCategoryName, setNewCategoryName] = useState("");
 
     const fetchCategories = async () => {
         const trimmedSearch = searchValue.trim();
@@ -44,8 +47,6 @@ function CategoryList() {
         }
 
         const data = await getCategories();
-
-        console.log(data);
 
         return mapCategoriesForGrid(data);
     };
@@ -62,30 +63,43 @@ function CategoryList() {
         staleTime: 0
     });
 
-    // 새 카테고리 추가 모달 열기
-    const handleNewCategory = () => {
+    const openCreateModal = () => {
+        setIsEdit(false);
+        setEditingId(null);
+        setCategoryName("");
         setModalOpen(true);
     };
 
-    // 카테고리 업로드(모달 내에서 submit한 경우) 예시
-    const handleUpload = async () => {
-        if (!modalOpen) {
+    const openEditModal = (row) => {
+        setIsEdit(true);
+        setEditingId(row.id);
+        setCategoryName(row.name);
+        setModalOpen(true);
+    };
+
+    const handleSubmit = async () => {
+        const trimmed = categoryName.trim();
+
+        if (!trimmed) {
+            alert("카테고리 이름을 입력하세요.");
             return;
         }
 
         try {
-            if (!newCategoryName.trim()) {
-                alert("카테고리 이름을 입력하세요.");
-                return;
+            if (isEdit) {
+                await updateCategory(editingId, trimmed);
+                alert("카테고리가 성공적으로 수정되었습니다.");
+            } else {
+                await createCategory(trimmed);
+                alert("카테고리가 성공적으로 생성되었습니다.");
             }
-            await createCategory(newCategoryName.trim());
-            alert("카테고리가 성공적으로 생성되었습니다.");
             setModalOpen(false);
-            setNewCategoryName("");
             refetch();
         } catch (error) {
-            console.error("카테고리 생성 중 오류:", error);
-            alert("카테고리를 생성하지 못했습니다. 다시 시도해주세요.");
+            const action = isEdit ? "업데이트" : "생성";
+
+            console.error(`카테고리 ${action} 중 오류:`, error);
+            alert(`카테고리를 ${action}하지 못했습니다. 다시 시도해주세요.`);
         }
     };
 
@@ -123,8 +137,8 @@ function CategoryList() {
                 columns={CATEGORY_COLUMNS} // import한 CATEGORY_COLUMNS 사용
                 tabs={[]} // 탭이 필요 없으면 빈 배열 혹은 undefined
                 showNewButton={role === "admin"} // admin이 아닐 경우 + 새 문서(카테고리) 버튼 노출
-                onNewDocClick={handleNewCategory}
-                onRowView={() => {}}
+                onNewDocClick={openCreateModal}
+                onRowView={openEditModal}
                 onRowDelete={handleDelete}
                 loading={isLoading}
                 tabValue={tabValue}
@@ -133,9 +147,11 @@ function CategoryList() {
                 onSearch={handleSearch}
             />
 
-            {/* 새 카테고리 등록 모달 */}
+            {/* 카테고리 등록 및 편집 모달 */}
             <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
-                <DialogTitle>새 카테고리 등록</DialogTitle>
+                <DialogTitle>
+                    {isEdit ? "카테고리 수정" : "새 카테고리 등록"}
+                </DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
@@ -144,14 +160,14 @@ function CategoryList() {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        value={categoryName}
+                        onChange={(e) => setCategoryName(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setModalOpen(false)}>취소</Button>
-                    <Button variant="contained" onClick={handleUpload}>
-                        등록
+                    <Button variant="contained" onClick={handleSubmit}>
+                        {isEdit ? "수정" : "등록"}
                     </Button>
                 </DialogActions>
             </Dialog>

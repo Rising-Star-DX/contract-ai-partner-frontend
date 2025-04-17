@@ -45,6 +45,24 @@ export const createCategory = async (newCategoryName) => {
     }
 };
 
+// 카테고리 업데이트
+export const updateCategory = async (categoryId, categoryName) => {
+    try {
+        const response = await apiClient.patch(
+            `/categories/${categoryId}`,
+            categoryName
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error(
+            "카테고리를 업데이트 하는 중 오류가 발생했습니다:",
+            error
+        );
+        throw error;
+    }
+};
+
 // 카테고리 삭제
 export const deleteCategory = async (categoryId) => {
     try {
