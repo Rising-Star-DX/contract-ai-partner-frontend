@@ -30,42 +30,58 @@ function ReviewContent({ agreementData }) {
     const highlightPluginInstance = highlightPlugin({
         highlightAreas,
         trigger: Trigger.None,
-        renderHighlights: (props) => {
-            const { pageIndex, rotation } = props;
-
+        renderHighlights: ({ pageIndex, rotation }) => {
             // 현재 페이지(pageIndex)에 해당하는 영역만 필터링
-            const areas = highlightAreas.filter(
-                (area) => area.pageIndex === pageIndex
+            const areasOnPage = highlightAreas.filter(
+                (a) => a.pageIndex === pageIndex
             );
 
             return (
                 <>
-                    {areas.map((area, index) => {
-                        const { top, left, width, height } = area;
-                        const id = area.data.id;
+                    {areasOnPage.map((area, idx) => {
+                        const {
+                            top,
+                            left,
+                            width,
+                            height,
+                            data: { id },
+                            styleType,
+                            isClickable
+                        } = area; // 구조분해로 shadow 방지
+
+                        const baseStyle = {
+                            position: "absolute",
+                            top: `${top}%`,
+                            left: `${left}%`,
+                            width: `${width}%`,
+                            height: `${height}%`,
+                            rotate: rotation,
+                            cursor: "pointer",
+                            pointerEvents: isClickable ? "auto" : "none",
+                            zIndex: 1
+                        };
+
+                        const style =
+                            styleType === "underline"
+                                ? {
+                                      ...baseStyle,
+                                      borderBottom:
+                                          "2px solid rgba(255,0,0,0.9)",
+                                      backgroundColor: "transparent"
+                                  }
+                                : {
+                                      ...baseStyle,
+                                      backgroundColor: "rgba(255,255,0,0.3)" // 노란 형광
+                                  };
 
                         return (
                             <div
-                                key={index}
+                                key={idx}
                                 id={id}
-                                style={{
-                                    position: "absolute",
-                                    top: `${top}%`,
-                                    left: `${left}%`,
-                                    width: `${width}%`,
-                                    height: `${height}%`,
-                                    backgroundColor: "yellow",
-                                    opacity: 0.3,
-                                    cursor: "pointer",
-                                    rotate: rotation,
-                                    pointerEvents: "auto",
-                                    zIndex: 1
-                                }}
-                                onClick={() => {
-                                    console.log("id: ", id, "key: ", index);
-
-                                    setOpenCardId(id);
-                                }}
+                                style={style}
+                                onClick={() =>
+                                    isClickable ? setOpenCardId(id) : null
+                                }
                             />
                         );
                     })}
@@ -225,22 +241,27 @@ function ReviewContent({ agreementData }) {
             return;
         }
 
-        const converted = agreementData.incorrectTexts.flatMap((item) => {
-            const pageIndex = item.currentPage - 1; // 0-based
+        const underlineAreas = agreementData.incorrectTexts.flatMap((item) =>
+            item.positions.map((p) => ({
+                ...p,
+                pageIndex: item.currentPage - 1,
+                data: { id: item.id },
+                styleType: "underline", // 구분자
+                isClickable: true
+            }))
+        );
 
-            return item.positions.map((pos) => ({
-                pageIndex,
-                top: pos.top,
-                left: pos.left,
-                width: pos.width,
-                height: pos.height,
-                data: {
-                    id: item.id
-                }
-            }));
-        });
+        const highlightParts = agreementData.incorrectTexts.flatMap((item) =>
+            item.positionParts.map((p) => ({
+                ...p,
+                pageIndex: item.currentPage - 1,
+                data: { id: item.id },
+                styleType: "highlight", // 구분자
+                isClickable: false
+            }))
+        );
 
-        setHighlightAreas(converted);
+        setHighlightAreas([...underlineAreas, ...highlightParts]);
     }, [agreementData]);
 
     return (
