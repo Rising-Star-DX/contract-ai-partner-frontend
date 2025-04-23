@@ -11,22 +11,21 @@ import XlsIcon from "../assets/images/ic_xls.png";
  * @returns icon URL
  */
 export const getDocIcon = (type) => {
-    switch (type?.toUpperCase()) {
-        case "DOC" || "DOCX":
-            return DocIcon;
-        case "JPG" || "JPEG":
-            return JpgIcon;
-        case "PDF":
-            return PdfIcon;
-        case "PNG":
-            return PngIcon;
-        case "TXT":
-            return TxtIcon;
-        case "XLS":
-            return XlsIcon;
-        default:
-            return DocIcon; // 기본 아이콘
-    }
+    const key = (type ?? "").toUpperCase();
+
+    const iconMap = {
+        DOC: DocIcon,
+        DOCX: DocIcon,
+        JPG: JpgIcon,
+        JPEG: JpgIcon,
+        PDF: PdfIcon,
+        PNG: PngIcon,
+        TXT: TxtIcon,
+        XLS: XlsIcon,
+        XLSX: XlsIcon
+    };
+
+    return iconMap[key] ?? DocIcon;
 };
 
 // 상태 처리 함수
