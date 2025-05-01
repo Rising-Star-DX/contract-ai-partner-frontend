@@ -8,12 +8,12 @@ function renderAccuracyChip(value) {
     let label = "낮음";
     let color = "error"; // MUI preset 색상
 
-    if (value >= 95) {
+    if (value >= 90) {
         label = "매우 높음";
-        color = "primary";
-    } else if (value >= 90) {
-        label = "높음";
         color = "success";
+    } else if (value >= 85) {
+        label = "높음";
+        color = "info";
     } else if (value >= 80) {
         label = "보통";
         color = "warning";

@@ -1,13 +1,30 @@
 // src/components/UserProfile.jsx
-import React from "react";
+import React, {useContext} from "react";
 import { Box, Avatar, Typography, Stack } from "@mui/material";
+
+import RoleContext from "../contexts/RoleContext";
 
 function UserProfile({
     avatarUrl = "",
     userName = "POSCO DX",
-    userTeam = "R&D 1팀",
-    userEmail = "sample123@poscodx.com",
+    userTeam = "R&D 2팀",
+    userEmail = "rising-star@poscodx.com",
 }) {
+    // 1) Context에서 role과 setRole 가져오기
+    const { role, setRole } = useContext(RoleContext);
+
+    // 2) 클릭 핸들러: admin<->user 토글
+    const handleAvatarClick = () => {
+        console.log("avatar click");
+        
+
+        if (role === "admin") {
+            setRole("user");
+        } else {
+        setRole("admin");
+        }
+    };
+
     return (
         <Box
             sx={{ width: "100%", height: 120, px: 5, bgcolor: "#EAECEE" }}
@@ -19,6 +36,7 @@ function UserProfile({
                     src={avatarUrl}
                     alt={userName}
                     sx={{ width: 64, height: 64 }}
+                    onClick={handleAvatarClick}
                 />
 
                 {/* 텍스트 영역 */}

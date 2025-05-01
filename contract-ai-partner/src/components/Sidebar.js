@@ -33,7 +33,7 @@ function Sidebar() {
     const { pathname } = useLocation();
 
     // 권한
-    const role = useContext(RoleContext);
+    const { role } = useContext(RoleContext);
 
     /**
      * 상위 메뉴 클릭 시 실행
@@ -177,8 +177,8 @@ function Sidebar() {
                 <UserProfile
                     avatarUrl={avatarSample}
                     userName="POSCO DX"
-                    userTeam="R&D 1팀"
-                    userEmail="sample123@poscodx.com"
+                    userTeam="R&D 2팀"
+                    userEmail="rising-star@poscodx.com"
                 />
             </Box>
         </Box>

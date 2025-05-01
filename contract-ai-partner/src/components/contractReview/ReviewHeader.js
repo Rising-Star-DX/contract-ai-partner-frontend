@@ -26,7 +26,7 @@ function ReviewHeader({ category, docName, docType }) {
                     sx={{ color: "text.secondary" }}
                 >
                     {/* "카테고리 > 문서이름.문서타입" 형태로 표시 */}
-                    {category} &gt; {docName}.{docType}
+                    {category} &gt; {docName}
                 </Typography>
             </Grid2>
         </Grid2>

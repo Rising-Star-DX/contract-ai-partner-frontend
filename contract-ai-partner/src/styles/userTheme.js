@@ -13,6 +13,9 @@ const userTheme = createTheme({
         },
         error: {
             main: "#EF5350"
+        },
+        info: {
+            main: "#27AE60"
         }
     },
     typography: {

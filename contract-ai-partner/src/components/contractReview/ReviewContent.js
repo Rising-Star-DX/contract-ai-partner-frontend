@@ -90,6 +90,112 @@ function ReviewContent({ agreementData }) {
         }
     });
 
+    // PDF / 이미지 표시 부분
+    const renderOriginal = () => {
+        if (!agreementData) return null;
+
+        const isPdf = agreementData.type?.toUpperCase() === "PDF";
+
+        if (isPdf) {
+            /* 기존 PDF 렌더러 그대로 */
+            return (
+                <Paper
+                    id="pdf-container"
+                    sx={{
+                        flex: 1,
+                        mb: 4,
+                        overflow: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "stretch"
+                    }}
+                >
+                    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                        <Viewer
+                            fileUrl={agreementData.url}
+                            plugins={[highlightPluginInstance]}
+                            defaultScale={SpecialZoomLevel.PageWidth}
+                        />
+                    </Worker>
+                </Paper>
+            );
+        } else {
+            return (
+                <Paper
+                    sx={{
+                        flex: 1,
+                        mb: 4,
+                        overflow: "auto"
+                    }}
+                >
+                    <Box sx={{ position: "relative", width: "100%" }}>
+                        {/* 단일 이미지 (pageIndex = 0) */}
+                        <img
+                            src={agreementData.url}
+                            alt="agreement"
+                            style={{ width: "100%", display: "block" }}
+                        />
+
+                        {/* 오버레이 */}
+                        {highlightAreas
+                            .filter((a) => a.pageIndex === 0)
+                            .map((area, index) => {
+                                const {
+                                    top,
+                                    left,
+                                    width,
+                                    height,
+                                    data: { id },
+                                    styleType,
+                                    isClickable
+                                } = area;
+
+                                const baseStyle = {
+                                    position: "absolute",
+                                    top: `${top}%`,
+                                    left: `${left}%`,
+                                    width: `${width}%`,
+                                    height: `${height}%`,
+                                    cursor: isClickable ? "pointer" : "default",
+                                    pointerEvents: isClickable
+                                        ? "auto"
+                                        : "none",
+                                    zIndex: 1
+                                };
+
+                                const style =
+                                    styleType === "underline"
+                                        ? {
+                                              ...baseStyle,
+                                              borderBottom:
+                                                  "2px solid rgba(255,0,0,0.9)",
+                                              backgroundColor: "transparent"
+                                          }
+                                        : {
+                                              ...baseStyle,
+                                              backgroundColor:
+                                                  "rgba(255,255,0,0.3)"
+                                          };
+
+                                return (
+                                    <Box
+                                        key={id + index}
+                                        id={id}
+                                        sx={style}
+                                        onClick={() =>
+                                            isClickable
+                                                ? setOpenCardId(id)
+                                                : undefined
+                                        }
+                                    />
+                                );
+                            })}
+                    </Box>
+                </Paper>
+            );
+        }
+    };
+
     const handleAccordionEntered = (cardId) => {
         scrollToCard(cardId);
     };
@@ -241,10 +347,13 @@ function ReviewContent({ agreementData }) {
             return;
         }
 
+        const isPdf = agreementData.type?.toUpperCase() === "PDF";
+        const calcPageIndex = (origPage) => (isPdf ? origPage - 1 : 0);
+
         const underlineAreas = agreementData.incorrectTexts.flatMap((item) =>
             item.positions.map((p) => ({
                 ...p,
-                pageIndex: item.currentPage - 1,
+                pageIndex: calcPageIndex(item.currentPage),
                 data: { id: item.id },
                 styleType: "underline", // 구분자
                 isClickable: true
@@ -254,7 +363,7 @@ function ReviewContent({ agreementData }) {
         const highlightParts = agreementData.incorrectTexts.flatMap((item) =>
             item.positionParts.map((p) => ({
                 ...p,
-                pageIndex: item.currentPage - 1,
+                pageIndex: calcPageIndex(item.currentPage),
                 data: { id: item.id },
                 styleType: "highlight", // 구분자
                 isClickable: false
@@ -279,25 +388,8 @@ function ReviewContent({ agreementData }) {
                     height: "100%"
                 }}
             >
-                <Paper
-                    id="pdf-container"
-                    sx={{
-                        flex: 1,
-                        mb: 4,
-                        overflow: "auto",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "stretch"
-                    }}
-                >
-                    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                        <Viewer
-                            fileUrl={agreementData.url}
-                            plugins={[highlightPluginInstance]}
-                            defaultScale={SpecialZoomLevel.PageWidth}
-                        />
-                    </Worker>
-                </Paper>
+                {/* PDF / 이미지 따라서 컴포넌트 변경 */}
+                {renderOriginal()}
                 <Button
                     variant="outlined"
                     color="primary"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext} from "react";
 import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "@mui/material/styles";
 // QueryClient
@@ -34,12 +34,17 @@ function Root() {
 }
 
 function ThemeWrapper({ children }) {
-    const role = React.useContext(RoleContext);
+    // 객체 형태로 받은 Context에서 role만 꺼내기
+    const { role } = useContext(RoleContext);
 
-    // role이 아직 null이면 기본 userTheme
+    // admin이면 adminTheme, 아니면 userTheme
     const currentTheme = role === "admin" ? adminTheme : userTheme;
 
-    return <ThemeProvider theme={currentTheme}>{children}</ThemeProvider>;
+    return (
+        <ThemeProvider theme={currentTheme}>
+            {children}
+        </ThemeProvider>
+    );
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
