@@ -1,7 +1,8 @@
 // src/pages/StandardDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
+import BeatLoader from "react-spinners/BeatLoader";
 
 // PDF 뷰어 관련
 import { Worker, Viewer, SpecialZoomLevel } from "@react-pdf-viewer/core";
@@ -16,6 +17,8 @@ function StandardDetail() {
     const [docData, setDocData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const theme = useTheme();
 
     useEffect(() => {
         const loadData = async () => {
@@ -84,9 +87,21 @@ function StandardDetail() {
                         </Worker>
                     </Box>
                 ) : (
-                    <Typography color="error" mt={2}>
-                        PDF 형식이 아니거나 업로드가 완료되지 않았습니다.
-                    </Typography>
+                    <Box
+                        sx={{
+                            height: "80vh",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                            mb: 12
+                        }}
+                    >
+                        <Typography sx={{fontSize: 40, fontFamily:"NanumSquareNeoHeavy", color: theme.palette.primary.main}} mt={2}>
+                            AI 분석 중
+                        </Typography>
+                        <BeatLoader color={theme.palette.primary.main} size={20}/>
+                    </Box>
                 )}
             </Box>
         </MainLayout>
