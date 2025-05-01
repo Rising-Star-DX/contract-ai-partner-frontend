@@ -23,7 +23,7 @@ import {
 import { mapDocsForGrid } from "../utils/docUtils";
 
 function StandardList() {
-    const role = useContext(RoleContext);
+    const {role} = useContext(RoleContext);
     const navigate = useNavigate();
 
     // 모달 창 상태

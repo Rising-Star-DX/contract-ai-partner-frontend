@@ -27,7 +27,7 @@ import {
 } from "../api/categoryApi"; // 카테고리 API 예시
 
 function CategoryList() {
-    const role = useContext(RoleContext);
+    const {role} = useContext(RoleContext);
     const [searchValue, setSearchValue] = useState("");
 
     const [modalOpen, setModalOpen] = useState(false);

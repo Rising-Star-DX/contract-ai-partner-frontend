@@ -23,7 +23,7 @@ import {
 import { mapDocsForGrid } from "../utils/docUtils"; // 전처리 함수
 
 function ContractList() {
-    const role = useContext(RoleContext);
+    const {role} = useContext(RoleContext);
     const navigate = useNavigate();
     const { categories } = useCategory();
 

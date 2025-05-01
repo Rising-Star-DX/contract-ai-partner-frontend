@@ -118,6 +118,8 @@ export const fetchAgreementDetail = async (id) => {
     try {
         const response = await apiClient.get(`/agreements/${id}`);
 
+        console.log(response.data.data);
+
         return response.data.data;
     } catch (error) {
         console.error("API 호출 중 에러:", error, error.message);
