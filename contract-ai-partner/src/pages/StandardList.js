@@ -23,7 +23,7 @@ import {
 import { mapDocsForGrid } from "../utils/docUtils";
 
 function StandardList() {
-    const {role} = useContext(RoleContext);
+    const { role } = useContext(RoleContext);
     const navigate = useNavigate();
 
     // 모달 창 상태
@@ -82,7 +82,7 @@ function StandardList() {
         isError,
         refetch
     } = useQuery({
-        queryKey: ["documents", searchValue], // 캐시 키
+        queryKey: ["documents", searchValue, selectedCategoryId], // 캐시 키
         queryFn: fetchDocuments, // API 호출 함수
         // 5초마다 자동 리페치 (폴링)
         refetchInterval: (query) => {
