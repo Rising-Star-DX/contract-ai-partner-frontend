@@ -94,7 +94,7 @@ function ReviewContent({ agreementData }) {
     const renderOriginal = () => {
         if (!agreementData) return null;
 
-        const isPdf = agreementData.type?.toUpperCase() === "PDF";
+        const isPdf = agreementData.type?.toUpperCase() === "PDF" || agreementData.type?.toUpperCase() === "DOCX" || agreementData.type?.toUpperCase() === "DOC" || agreementData.type?.toUpperCase() === "XLSX";
 
         if (isPdf) {
             /* 기존 PDF 렌더러 그대로 */

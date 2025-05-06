@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 
 import { useNavigate, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import mime from "mime-types";
 
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -44,6 +45,7 @@ const FileUploadModal = ({
 
     const navigate = useNavigate();
     const location = useLocation();
+    const queryClient = useQueryClient();       
 
     // 현재 문서 종류
     const docType = location.pathname.startsWith("/agreement")
@@ -225,11 +227,17 @@ const FileUploadModal = ({
                 });
         });
 
+        const isSingle = uploadingFiles.length === 1;
+
         // 파일 수에 따라 바로 페이지 이동 또는 모달 닫기
-        if (uploadingFiles.length === 1) {
-            docType === "AGREEMENT"
-                ? navigate(`/agreements/${uploadingFiles[0].docId}`)
-                : navigate(`/standards/${uploadingFiles[0].docId}`);
+        if (isSingle) {
+            if (docType === "AGREEMENT") {
+                navigate(`/agreements/${uploadingFiles[0].docId}`);
+            } else {
+                navigate("/standards");
+                // ✅ 목록 캐시 무효화 → 재조회
+                queryClient.invalidateQueries({ queryKey: ["standards"] });
+            }
         } else {
             onClose();
         }
